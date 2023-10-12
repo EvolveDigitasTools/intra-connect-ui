@@ -14,7 +14,6 @@ export const themeSlice = createSlice({
   reducers: {
     setTheme: (state, action: PayloadAction<'light' | 'dark' | 'system'>) => {
       state.theme = action.payload;
-      console.log('theme', action.payload)
       localStorage.setItem('themeMode', action.payload);
     },
   },

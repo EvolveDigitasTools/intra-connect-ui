@@ -1,5 +1,6 @@
 import { Route, createBrowserRouter, createRoutesFromElements } from "react-router-dom";
 import HomeLayout from "./layouts/HomeLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
 import LandingPage from "./components/LandingPage";
 
 export const router = createBrowserRouter(
@@ -7,6 +8,8 @@ export const router = createBrowserRouter(
       <>
         <Route element={<HomeLayout />}>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/dashboard" element={<DashboardLayout />}>
+            </Route>
         </Route>
       </>
     )

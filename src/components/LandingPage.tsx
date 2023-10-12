@@ -1,7 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import '../index.css';
+import { Navigate, useSearchParams } from 'react-router-dom';
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginSuccess } from '../features/auth/authSlice';
+import { RootState } from '../app/store';
 
 const LandingPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const dispatch = useDispatch();
+  const auth = useSelector((state: RootState) => state.auth);
+
+
+  useEffect(() => {
+    const loginUsingCode = async (code: string) => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/auth/login/${code}`);
+        dispatch(loginSuccess(response.data.data))
+      } catch (error) {
+        console.error('Error fetching access token:', error);
+      }
+    };
+    let code = searchParams.get('code');
+
+    if (code) {
+      loginUsingCode(code);
+    }
+    return () => {
+      // console.log('Component will unmount!');
+    }
+  }, []);
+
+  if (auth.isAuthenticated)
+    return (<div>
+      <Navigate to="/dashboard" />
+    </div>)
+
   return (
     <div className="mx-auto sm:px-6 sm:py-16 lg:px-16">
       <div className="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0">
@@ -29,7 +63,7 @@ const LandingPage: React.FC = () => {
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
             <a
-              href="#"
+              href={`https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&scope=email,profile&redirect_uri=${process.env.REACT_APP_BASE_URL}&access_type=offline&prompt=consent`}
               className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Login with zoho
