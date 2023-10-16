@@ -27,7 +27,7 @@ const authSlice = createSlice({
     logout: (state) => {
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/logout`, null, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${state.token}`
         }
       });
       state.isAuthenticated = false;

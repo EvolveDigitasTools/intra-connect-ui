@@ -13,7 +13,8 @@ module.exports = {
           'background': '#172b4d',
           'navbar': '#ffffff',
           'border': '#dcdfe4',
-          'text': '#0c66e4'
+          'text': '#0c66e4',
+          'main-text': '#ffffff'
         },
         'dark': {
           'primary': '#579dff',
@@ -22,12 +23,13 @@ module.exports = {
           'navbar': '#1d2125',
           'border': '#333c43',
           'text': '#9fadbc',
-          'secondry-button': '#9ca3af'
+          'secondry-button': '#9ca3af',
+          'main-text': '#b6c2cf'
         },
-      },
-    },
-    plugins: [
-      require('flowbite/plugin')
-    ],
-  }
+      }
+    }
+  },
+  plugins: [
+    require('flowbite/plugin')
+  ],
 }
