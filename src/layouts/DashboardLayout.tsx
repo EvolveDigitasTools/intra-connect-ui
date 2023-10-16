@@ -1,6 +1,5 @@
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
-import "./DashboardLayout.css";
 import { RootState } from "../app/store";
 import SidebarLeft from "../features/sidebar/Sidebar";
 import { useState } from "react";

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -24,6 +25,11 @@ const authSlice = createSlice({
       localStorage.setItem('user', JSON.stringify(action.payload.user))
     },
     logout: (state) => {
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/auth/logout`, null, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
       state.isAuthenticated = false;
       state.token = null;
       state.user = null;
