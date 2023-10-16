@@ -21,7 +21,8 @@ module.exports = {
           'background': '#1d2125',
           'navbar': '#1d2125',
           'border': '#333c43',
-          'text': '#9fadbc'
+          'text': '#9fadbc',
+          'secondry-button': '#9ca3af'
         },
       },
     },
