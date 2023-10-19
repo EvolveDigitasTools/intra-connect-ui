@@ -12,7 +12,7 @@ export default function Navbar() {
   const dispatch = useDispatch();
   
   return (
-    <header className="bg-light-navbar dark:bg-dark-navbar border-b border-light-border dark:border-dark-border h-[10vh] flex justify-between items-center px-4 md:px-6">
+    <section className="bg-light-navbar dark:bg-dark-navbar border-b border-light-border dark:border-dark-border h-[10vh] flex justify-between items-center px-4 md:px-6">
       <div className="h-full flex items-center">
         <a className='h-3/5 flex' href='/'><img className='h-full' src='/logo.png' /></a>
       </div>
@@ -51,6 +51,6 @@ export default function Navbar() {
           </Link>
         }
       </div>
-    </header>
+    </section>
   )
 }

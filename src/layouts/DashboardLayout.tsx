@@ -13,7 +13,7 @@ export default function DashboardLayout() {
     if (auth.isAuthenticated)
         return (<section className="flex h-[90vh]">
             <SidebarLeft isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
-            <main className={`p-8 transition-all duration-300 ${isSidebarOpen ? 'ml-64 w-full' : 'w-full'}`}>
+            <main className={`p-[5vh] transition-all duration-300 h-full ${isSidebarOpen ? 'ml-64 w-full' : 'w-full'}`}>
                 {!isSidebarOpen && <button className="fixed left-0 text-light-navbar dark:text-dark-secondry-button" onClick={() => setIsSidebarOpen(true)}><BsFillCaretRightSquareFill className="w-5 h-5" /></button>}
                 <Outlet />
             </main>

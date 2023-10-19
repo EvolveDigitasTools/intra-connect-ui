@@ -8,7 +8,7 @@ interface SidebarProps {
 }
 
 export default function SidebarLeft({ isOpen, onClose }: SidebarProps) {
-    return (<aside className={`absolute w-full sm:w-64 h-full transition-transform duration-300 ${isOpen ? 'transform translate-x-0' : 'transform -translate-x-full'}`}>
+    return (<aside className={`absolute w-full sm:w-64 h-[90vh] transition-transform duration-300 ${isOpen ? 'transform translate-x-0' : 'transform -translate-x-full'}`}>
         <button className="fixed right-0 mt-4 text-light-background dark:text-dark-secondry-button" onClick={() => onClose()}><BsFillCaretLeftSquareFill className="w-5 h-5" /></button>
         <Sidebar className="w-full sm:w-64">
             <Sidebar.Items>

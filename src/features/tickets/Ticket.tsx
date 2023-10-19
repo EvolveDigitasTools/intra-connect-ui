@@ -1,74 +1,63 @@
-import { PlusIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
-import { Button, Checkbox, Label, Modal, TextInput, Textarea } from "flowbite-react";
+import { Button, Card } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
+import { TicketBrief } from "../../interface";
+import { Link } from "react-router-dom";
+import NewTicket from "./NewTicket";
 
 export default function Ticket() {
-    const [newTicketOpen, setNewTicket] = useState(false);
     const auth = useSelector((state: RootState) => state.auth);
-    const [selectedAssignees, setSelectedAssignees] = useState([]);
-    const [assigneeInput, setAssigneeInput] = useState('');
-    let assignees = []
+    const [activeTickets, setActiveTickets] = useState<TicketBrief[]>([]);
+    const [closedTickets, setClosedTickets] = useState<TicketBrief[]>([]);
 
     useEffect(() => {
-        axios.get(`${process.env.REACT_APP_BACKEND_URL}/auth/assignees`, {
+        getTickets()
+    }, []);
+
+    const getTickets = () => {
+        axios.get(`${process.env.REACT_APP_BACKEND_URL}/ticket/all`, {
             headers: {
                 Authorization: `Bearer ${auth.token}`
             }
         }).then(res => {
-            assignees = res.data.data.assignees;
+            const tickets: TicketBrief[] = res.data.data.tickets
+            setActiveTickets(tickets.filter(ticket => ticket.status == "open"));
         })
-    }, []);
-
-    const toggleNewTicketModal = () => {
-        setNewTicket(!newTicketOpen);
     }
-    return (<section>
-        <header className="flex justify-between items-center mb-4">
-            <h1>Tickets</h1>
-            <Button onClick={toggleNewTicketModal} pill><PlusIcon className="w-3 h-3" /></Button>
-        </header>
-        <Modal
-            show={newTicketOpen}
-            size="md"
-            popup
-            onClose={() => toggleNewTicketModal()}
-        >
-            <Modal.Header>Raise New Ticket</Modal.Header>
-            <Modal.Body>
-                <form>
-                    <div>
-                        <Label htmlFor="title" value="Problem Title" />
-                        <TextInput id="title" placeholder="Title for your problem" required />
-                    </div>
-                    <div>
-                        <Label htmlFor="description" value="Problem Description" />
-                        <Textarea id="description" placeholder="Describe your problem" required />
-                    </div>
-                    <div>
-                        <Label htmlFor="assignees" value="Assignees" />
-                        <TextInput id="assignees" placeholder="Mention assignees" required />
-                    </div>
-                    <div className="relative">
-                        <input
-                            type="text"
-                            className="border border-gray-300 rounded-lg p-2 pl-8"
-                            placeholder="Search..."
-                        />
-                        <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
-                            <span className="bg-blue-500 text-white text-xs font-bold py-1 px-2 rounded-full">
-                                Badge
-                            </span>
-                        </div>
-                    </div>
 
-                    <div className="w-full">
-                        <Button type="submit">Raise Ticket</Button>
-                    </div>
-                </form>
-            </Modal.Body>
-        </Modal>
-    </section>)
+    return (<section className="h-full">
+        <header className="flex h-[8vh] justify-between items-center">
+            <h1>Tickets</h1>
+            <NewTicket getTickets={getTickets} />
+        </header>
+        <section className="h-[72vh] overflow-y-scroll">
+            {activeTickets.length > 0 && <section>
+                <h2>Active Tickets</h2>
+                <section className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+                    {activeTickets.map(ticket => <Card className="w-[250px] m-auto my-2 sm:w-[300px]">
+                        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            <p>
+                                {ticket.title.length > 20 ? ticket.title.substring(0, 17) + "..." : ticket.title}
+                            </p>
+                        </h5>
+                        <p className="font-normal text-gray-700 dark:text-gray-400">
+                            <p>
+                                {ticket.description.length > 50 ? ticket.description.substring(0, 47) + "..." : ticket.description}
+                            </p>
+                        </p>
+                        <Link to={`${ticket.id}`}>
+                            <Button>
+                                <p>
+                                    Open Ticket
+                                </p>
+                            </Button>
+                        </Link>
+                    </Card>
+                    )}
+                </section>
+            </section>}
+        </section>
+    </section >)
 }
