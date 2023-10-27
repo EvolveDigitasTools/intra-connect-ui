@@ -27,7 +27,7 @@ export default function TicketChat() {
     useEffect(() => {
         const getmsgs = setInterval(() => {
             getMessages()
-        }, 120000);
+        }, 30000);
         getMessages()
 
         return () => {
