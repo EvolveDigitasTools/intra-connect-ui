@@ -10,7 +10,10 @@ export interface TicketDetail {
     title: string,
     description: string,
     status: 'open' | 'closed',
-    files: FileBrief[]
+    files: FileBrief[],
+    assignees: { email: string }[],
+    assignedDepartments: { name: string }[],
+    creator: { email: string }
 }
 
 export interface FileBrief {
@@ -23,4 +26,9 @@ export interface Notification {
     message: string;
     type: 'success' | 'info' | 'error';
     timed: boolean;
-  }
+}
+
+export interface BoardDetail {
+    id: number,
+    title: string
+}

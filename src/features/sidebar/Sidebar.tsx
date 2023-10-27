@@ -1,6 +1,6 @@
 import { Sidebar } from "flowbite-react";
 import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, } from 'react-icons/hi';
-import { BsFillTicketDetailedFill, BsFillCaretLeftSquareFill } from 'react-icons/bs';
+import { BsFillTicketDetailedFill, BsFillCaretLeftSquareFill, BsClipboardDataFill } from 'react-icons/bs';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -14,7 +14,7 @@ export default function SidebarLeft({ isOpen, onClose }: SidebarProps) {
             <Sidebar.Items>
                 <Sidebar.ItemGroup>
                     <Sidebar.Item
-                        href="#"
+                        href="/dashboard"
                         icon={HiChartPie}
                     >
                         <p>
@@ -29,7 +29,15 @@ export default function SidebarLeft({ isOpen, onClose }: SidebarProps) {
                             Tickets
                         </p>
                     </Sidebar.Item>
-                    <Sidebar.Collapse
+                    <Sidebar.Item
+                        href='/dashboard/boards'
+                        icon={BsClipboardDataFill}
+                    >
+                        <p>
+                            Boards
+                        </p>
+                    </Sidebar.Item>
+                    {/* <Sidebar.Collapse
                         icon={HiShoppingBag}
                         label="E-commerce"
                     >
@@ -85,7 +93,7 @@ export default function SidebarLeft({ isOpen, onClose }: SidebarProps) {
                         <p>
                             Sign Up
                         </p>
-                    </Sidebar.Item>
+                    </Sidebar.Item> */}
                 </Sidebar.ItemGroup>
             </Sidebar.Items>
         </Sidebar>

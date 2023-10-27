@@ -11,15 +11,19 @@ module.exports = {
           'primary': '#0c66e4',
           'secondry': '#0052cce6',
           'background': '#172b4d',
-          'navbar': '#ffffff',
+          'background-secondry': '#f9fafb',
+          'navbar': '#fffffff2',
+          // 'navbar': '#ffffff',
           'border': '#dcdfe4',
           'text': '#0c66e4',
-          'main-text': '#ffffff'
+          'main-text': '#fffffff2'
+          // 'main-text': '#ffffff'
         },
         'dark': {
           'primary': '#579dff',
           'secondry': '#85b8ff',
           'background': '#1d2125',
+          'background-secondry': '#1f2937',
           'navbar': '#1d2125',
           'border': '#333c43',
           'text': '#9fadbc',
