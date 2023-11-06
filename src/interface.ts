@@ -30,5 +30,21 @@ export interface Notification {
 
 export interface BoardDetail {
     id: number,
+    title: string,
+    lists: List[],
+    listOrder: string,
+    cards: Card[]
+}
+
+export interface List {
+    id: number,
+    boardListId: number,
+    cardOrder: string,
+    title: string
+}
+
+export interface Card {
+    id: number,
+    boardCardId: number,
     title: string
 }

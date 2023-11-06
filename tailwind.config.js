@@ -16,7 +16,10 @@ module.exports = {
           // 'navbar': '#ffffff',
           'border': '#dcdfe4',
           'text': '#0c66e4',
-          'main-text': '#fffffff2'
+          'main-text': '#fffffff2',
+          'list': '#f1f2f4',
+          'list-action-hover': '#d0d4db',
+          'card': '#ffffff'
           // 'main-text': '#ffffff'
         },
         'dark': {
@@ -28,7 +31,10 @@ module.exports = {
           'border': '#333c43',
           'text': '#9fadbc',
           'secondry-button': '#9ca3af',
-          'main-text': '#b6c2cf'
+          'main-text': '#b6c2cf',
+          'list': '#101204',
+          'list-action-hover': '#282f27',
+          'card': '#22272b'
         },
       }
     }

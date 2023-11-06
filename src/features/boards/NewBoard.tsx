@@ -8,7 +8,7 @@ import axios from "axios";
 import { Notification } from "../../interface";
 import { addNotification } from "../notificationService/notificationSlice";
 
-export default function NewBoard() {
+export default function NewBoard({ getBoards }: { getBoards: () => void }) {
     const [newBoardModalOpen, updateNewBoardModalOpen] = useState(false);
     const [newBoardLoading, setNewBoardLoading] = useState(false);
     const [title, setTitle] = useState('')
@@ -43,21 +43,21 @@ export default function NewBoard() {
 
         formData.append("title", title);
         formData.append("members", JSON.stringify(selectedMembers));
-        
+
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/board/new`, formData, {
             headers: {
                 Authorization: `Bearer ${auth.token}`
             }
         }).then(res => {
-            console.log(res)
             setNewBoardLoading(false);
             updateNewBoardModalOpen(false);
             const notification: Notification = {
                 id: new Date().getTime(),
-                message: 'New Modal created',
+                message: 'New Board created',
                 type: 'success',
                 timed: true
             }
+            getBoards()
             dispatch(addNotification(notification))
         })
     }
