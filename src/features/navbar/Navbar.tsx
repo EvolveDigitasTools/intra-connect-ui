@@ -9,12 +9,13 @@ import { logout } from '../auth/authSlice';
 
 export default function Navbar() {
   const auth = useSelector((state: RootState) => state.auth);
+  const theme = useSelector((state: RootState) => state.theme)
   const dispatch = useDispatch();
-  
+
   return (
     <section className="bg-light-navbar dark:bg-dark-navbar border-b border-light-border dark:border-dark-border h-[10vh] flex justify-between items-center px-4 md:px-6">
       <div className="h-full flex items-center">
-        <a className='h-3/5 flex' href='/'><img className='h-full' src='/logo.png' /></a>
+        <a className='h-3/5 flex' href='/'><img className='h-full' src={theme.theme == "light" ? '/pluugin-logo-dark.png' : '/plugin-logo.png'} /></a>
       </div>
       <div className="right-nav flex items-center">
         <ThemeToggler />

@@ -9,9 +9,10 @@ interface CardProps {
     title?: string | undefined,
     edit: boolean,
     onSave: (newTitle: string) => void,
-    cancel: () => void
+    cancel: () => void,
+    deleteCard?: () => void
 }
-export default function CardUI({ id, index, title = '', edit, onSave, cancel }: CardProps) {
+export default function CardUI({ id, index, title = '', edit, onSave, cancel, deleteCard }: CardProps) {
     const [hover, setHover] = useState(false)
     const [editToggle, setEditToggle] = useState(false)
     const [newCardText, setNewCardText] = useState('')
@@ -59,7 +60,7 @@ export default function CardUI({ id, index, title = '', edit, onSave, cancel }: 
                         onClick={() => setCardDetailModel(true)}
                     >
                         {title}
-                        {hover && <PencilIcon className="w-3 h-3 top-2 right-1 cursor-pointer absolute" onClick={() => setEditToggle(true)} />}
+                        {hover && <PencilIcon className="w-3 h-3 top-2 right-1 cursor-pointer absolute" onClick={(e) => { e.stopPropagation(); setEditToggle(true) }} />}
                     </li>
                 )}
             </Draggable>
@@ -78,6 +79,7 @@ export default function CardUI({ id, index, title = '', edit, onSave, cancel }: 
                                 onChange={(e) => setDescription(e.target.value)}
                             />
                         </div>
+                        <Button onClick={deleteCard}>Delete Card</Button>
                     </div>
                 </Modal.Body>
             </Modal>

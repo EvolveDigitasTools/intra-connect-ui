@@ -183,6 +183,34 @@ export default function BoardUI() {
         setBoard(updatedBoardData)
     }
 
+    const deleteList = (listId: number) => {
+        const updatedLists = board.lists.slice();
+        const listOrder: number[] = JSON.parse(board.listOrder)
+        listOrder.splice(listOrder.findIndex(listId => listId == listId), 1)
+        updatedLists.slice(updatedLists.findIndex(list => list.boardListId == listId), 1)
+        const updatedBoardData: BoardDetail = {
+            ...board,
+            lists: updatedLists,
+            listOrder: JSON.stringify(listOrder)
+        }
+        setBoard(updatedBoardData)
+    }
+
+    const deleteCard = (cardId: number, listId: number) => {
+        console.log('cardId', cardId, listId)
+        const updatedLists = board.lists.slice();
+        const listIndex = updatedLists.findIndex(list => list.boardListId == listId)
+        const cardOrder: number[] = JSON.parse(updatedLists[listIndex].cardOrder)
+        cardOrder.splice(cardOrder.findIndex(id => id == cardId), 1)
+        updatedLists[listIndex].cardOrder = JSON.stringify(cardOrder)
+        const updatedBoardData: BoardDetail = {
+            ...board,
+            lists: updatedLists
+        }
+        console.log(updatedBoardData)
+        setBoard(updatedBoardData)
+    }
+
     if (loading)
         return (<section className="w-full h-full flex justify-center items-center">
             <Spinner size="xl" />
@@ -222,6 +250,8 @@ export default function BoardUI() {
                                             index={index}
                                             addNewCard={addNewCard}
                                             updateCardText={updateCardText}
+                                            deleteList={deleteList}
+                                            deleteCard={deleteCard}
                                         />
                                     );
                                 })}

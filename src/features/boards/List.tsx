@@ -3,16 +3,19 @@ import { BsThreeDots, BsPlus } from 'react-icons/bs'
 import CardUI from "./Card"
 import { Draggable, Droppable } from "@hello-pangea/dnd"
 import { useState } from "react"
+import { Dropdown } from "flowbite-react"
 
 interface ListProps {
     list: List,
-    cards: Card[], 
-    index: number, 
+    cards: Card[],
+    index: number,
     addNewCard: (listId: number, cardText: string) => void,
     updateCardText: (cardId: number, updatedText: string) => void
+    deleteList: (listId: number) => void,
+    deleteCard: (cardId: number, listId: number) => void
 }
 
-export default function ListUI({ list, cards, index, addNewCard, updateCardText }: ListProps) {
+export default function ListUI({ list, cards, index, addNewCard, updateCardText, deleteList, deleteCard }: ListProps) {
     const [isNewOpen, setNewOpen] = useState(false)
 
     const newCard = (newCardText: string) => {
@@ -30,7 +33,9 @@ export default function ListUI({ list, cards, index, addNewCard, updateCardText 
             >
                 <header {...provided.dragHandleProps} className="flex gap-x-1 p-2 relative flex-grow-0 flex-shrink-0 justify-between items-start flex-wrap">
                     <h3 className=" text-sm px-2 py-1">{list?.title}</h3>
-                    <button className="p-2"><BsThreeDots /></button>
+                    <Dropdown label="" dismissOnClick={false} placement="right-start" renderTrigger={() => <button className="p-2"><BsThreeDots /></button>}>
+                        <Dropdown.Item onClick={() => deleteList(list.boardListId)}>Delete List</Dropdown.Item>
+                    </Dropdown>
                 </header>
                 <Droppable droppableId={'list-' + list?.boardListId} type="card">
                     {(provided, snapshot) => (
@@ -48,6 +53,7 @@ export default function ListUI({ list, cards, index, addNewCard, updateCardText 
                                     edit={false}
                                     onSave={(newTitle) => updateCardText(card.boardCardId, newTitle)}
                                     cancel={() => setNewOpen(false)}
+                                    deleteCard={() => deleteCard(card.boardCardId, list.boardListId)}
                                 />
                             ))}
                             {provided.placeholder}
