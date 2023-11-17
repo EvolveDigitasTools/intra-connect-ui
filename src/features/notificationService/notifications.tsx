@@ -23,7 +23,7 @@ export default function Notifcations() {
 
     return (
         <div className="absolute flex flex-col gap-4 w-full p-4">
-            {notifications.map(notification => <NotificationUI data={notification} />)}
+            {notifications.map(notification => <NotificationUI key={notification.id} data={notification} />)}
         </div>
     );
 }

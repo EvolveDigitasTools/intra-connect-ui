@@ -1,5 +1,7 @@
 import { Sidebar } from "flowbite-react";
 import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, } from 'react-icons/hi';
+import { GoWorkflow } from "react-icons/go";
+import { IoIosGitNetwork } from "react-icons/io";
 import { BsFillTicketDetailedFill, BsFillCaretLeftSquareFill, BsClipboardDataFill } from 'react-icons/bs';
 
 interface SidebarProps {
@@ -7,13 +9,50 @@ interface SidebarProps {
     onClose: () => void;
 }
 
+const sideBarMenu = [
+    {
+        url: '/dashboard',
+        title: 'Dashboard',
+        icon: HiChartPie
+    },
+    {
+        url: '/dashboard/tickets',
+        title: 'Tickets',
+        icon: BsFillTicketDetailedFill
+    },
+    {
+        url: '/dashboard/boards',
+        title: 'Boards',
+        icon: BsClipboardDataFill
+    },
+    {
+        url: '/dashboard/workflows',
+        title: 'Workflows',
+        icon: GoWorkflow
+    },
+    {
+        url: '/dashboard/jobs',
+        title: 'Jobs',
+        icon: IoIosGitNetwork
+    }
+]
+
 export default function SidebarLeft({ isOpen, onClose }: SidebarProps) {
     return (<aside className={`absolute w-full sm:w-64 h-[90vh] transition-transform duration-300 ${isOpen ? 'transform translate-x-0' : 'transform -translate-x-full'}`}>
         <button className="fixed right-0 mt-4 text-light-background dark:text-dark-secondry-button" onClick={() => onClose()}><BsFillCaretLeftSquareFill className="w-5 h-5" /></button>
         <Sidebar className="w-full sm:w-64">
             <Sidebar.Items>
                 <Sidebar.ItemGroup>
-                    <Sidebar.Item
+                    {sideBarMenu.map(menuItem => <Sidebar.Item
+                        href={menuItem.url}
+                        icon={menuItem.icon}
+                        key={menuItem.title}
+                    >
+                        <p>
+                            {menuItem.title}
+                        </p>
+                    </Sidebar.Item>)}
+                    {/* <Sidebar.Item
                         href="/dashboard"
                         icon={HiChartPie}
                     >
@@ -36,7 +75,7 @@ export default function SidebarLeft({ isOpen, onClose }: SidebarProps) {
                         <p>
                             Boards
                         </p>
-                    </Sidebar.Item>
+                    </Sidebar.Item> */}
                     {/* <Sidebar.Collapse
                         icon={HiShoppingBag}
                         label="E-commerce"

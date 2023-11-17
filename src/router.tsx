@@ -7,6 +7,8 @@ import TicketDetailUI from "./features/tickets/TicketDetail";
 import Dashboard from "./features/dashboard/Dashboard";
 import BoardList from "./features/boards/BoardList";
 import Board from "./features/boards/Board";
+import Workflow from "./features/workflows/Workflow";
+import NewWorkflow from "./features/workflows/NewWorkflow";
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -19,6 +21,9 @@ export const router = createBrowserRouter(
               <Route path="tickets/:ticketId" element={<TicketDetailUI />} />
               <Route path="boards" element={<BoardList />} />
               <Route path="boards/:boardId" element={<Board />} />
+              <Route path="workflows" element={<Workflow />} />
+              <Route path="workflow/:workflowId" element={<NewWorkflow />} />
+              {/* <Route path="jobs" /> */}
             </Route>
         </Route>
       </>
