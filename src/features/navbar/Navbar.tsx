@@ -47,9 +47,10 @@ export default function Navbar() {
               Sign out
             </DropdownItem>
           </Dropdown> :
-          <Link to={`https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&scope=email,profile&redirect_uri=${process.env.REACT_APP_BASE_URL}&access_type=offline&prompt=consent`}>
-            <button type="button" className="text-light-navbar dark:text-dark-navbar bg-light-primary dark:bg-dark-primary hover:bg-light-secondry focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:hover:bg-dark-secondry focus:outline-none dark:focus:ring-blue-800">Login</button>
-          </Link>
+          // <Link to={`https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&scope=email,profile&redirect_uri=${process.env.REACT_APP_BASE_URL}&access_type=offline&prompt=consent`}>
+          //   <button type="button" className="text-light-navbar dark:text-dark-navbar bg-light-primary dark:bg-dark-primary hover:bg-light-secondry focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:hover:bg-dark-secondry focus:outline-none dark:focus:ring-blue-800">Login</button>
+          // </Link>
+          <></>
         }
       </div>
     </section>

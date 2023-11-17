@@ -1,15 +1,20 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../index.css';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../features/auth/authSlice';
 import { RootState } from '../app/store';
+import { Spinner } from 'flowbite-react';
+import { Notification } from '../interface';
+import { addNotification } from '../features/notificationService/notificationSlice';
 
 const LandingPage: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const [loading, setLoading] = useState(false)
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.auth);
+  const code = searchParams.get('code');
 
 
   useEffect(() => {
@@ -17,13 +22,23 @@ const LandingPage: React.FC = () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/auth/login/${code}`);
         dispatch(loginSuccess(response.data.data))
+        setLoading(false)
       } catch (error) {
+        setLoading(false)
         console.error('Error fetching access token:', error);
+        const notification: Notification = {
+          id: new Date().getTime(),
+          message: 'Some Error Occured while logging in',
+          type: 'error',
+          timed: false
+        }
+        if(process.env.NODE_ENV != 'development')
+        dispatch(addNotification(notification))
       }
-    };
-    let code = searchParams.get('code');
+    };    
 
     if (code) {
+      setLoading(true)
       loginUsingCode(code);
     }
     return () => {
@@ -31,10 +46,16 @@ const LandingPage: React.FC = () => {
     }
   }, []);
 
-  if (auth.isAuthenticated)
+  if (auth.isAuthenticated) {
     return (<div>
       <Navigate to="/dashboard" />
     </div>)
+  }
+
+  if (loading)
+    return (<section className="w-full h-[90vh] flex justify-center items-center">
+      <Spinner size="xl" />
+    </section>)
 
   return (
     <div className="mx-auto sm:px-6 sm:py-16 lg:px-16">
@@ -63,10 +84,16 @@ const LandingPage: React.FC = () => {
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6 lg:justify-start">
             <a
-              href={`https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&scope=email,profile&redirect_uri=${process.env.REACT_APP_BASE_URL}&access_type=offline&prompt=consent`}
+              href={`https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID_EVOLVE}&scope=email,profile&redirect_uri=${process.env.REACT_APP_BASE_URL}&access_type=offline&prompt=consent`}
               className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              Login with zoho
+              Login for Evolve
+            </a>
+            <a
+              href={`https://accounts.zoho.com/oauth/v2/auth?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID_PLUUGIN}&scope=email,profile&redirect_uri=${process.env.REACT_APP_BASE_URL}&access_type=offline&prompt=consent`}
+              className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              Login for Pluugin
             </a>
           </div>
         </div>
