@@ -1,18 +1,16 @@
 import { useEffect, useState } from "react";
-import NewWorkflow from "./NewWorkflow";
 import { useSelector } from "react-redux";
-import { RootState } from "../../app/store";
 import axios from "axios";
 import { Button, Card } from "flowbite-react";
-import { WorkflowDetail } from "../../interface";
 import { Link } from "react-router-dom";
+import { RootState } from "../../../app/store";
 
-export default function Workflow() {
+export default function Job() {
     const auth = useSelector((state: RootState) => state.auth);
-    const [workflows, setWorkflows] = useState<WorkflowDetail[]>([]);
+    // const [workflows, setWorkflows] = useState<WorkflowDetail[]>([]);
 
     useEffect(() => {
-        getWorkflows()
+        // getWorkflows()
     }, []);
 
     const getWorkflows = () => {
@@ -21,18 +19,18 @@ export default function Workflow() {
                 Authorization: `Bearer ${auth.token}`
             }
         }).then(res => {
-            const workflows: WorkflowDetail[] = res.data.data.workflows
-            setWorkflows(workflows);
+            // const workflows: WorkflowDetail[] = res.data.data.workflows
+            // setWorkflows(workflows);
         })
     }
 
     return (<section className="h-full px-[5vh]">
         <header className="flex h-[8vh] justify-between items-center">
-            <h1>Workflows</h1>
-            <NewWorkflow />
+            <h1>Jobs</h1>
+            {/* <NewWorkflow /> */}
         </header>
         <section className="h-[72vh] overflow-y-scroll">
-            {workflows.length > 0 && <section>
+            {/* {workflows.length > 0 && <section>
                 <section className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
                     {workflows.map(workflow => <Card className="w-[250px] m-auto my-2 sm:w-[300px]">
                         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -55,7 +53,7 @@ export default function Workflow() {
                     </Card>
                     )}
                 </section>
-            </section>}
+            </section>} */}
         </section>
         
     </section >)

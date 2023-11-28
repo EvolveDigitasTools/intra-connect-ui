@@ -9,6 +9,8 @@ import BoardList from "./features/boards/BoardList";
 import Board from "./features/boards/Board";
 import Workflow from "./features/workflows/Workflow";
 import NewWorkflow from "./features/workflows/NewWorkflow";
+import WorkflowEditor from "./features/workflows/WorkflowEditor";
+import Job from "./features/workflows/jobs/Job";
 
 export const router = createBrowserRouter(
     createRoutesFromElements(
@@ -22,8 +24,8 @@ export const router = createBrowserRouter(
               <Route path="boards" element={<BoardList />} />
               <Route path="boards/:boardId" element={<Board />} />
               <Route path="workflows" element={<Workflow />} />
-              <Route path="workflow/:workflowId" element={<NewWorkflow />} />
-              {/* <Route path="jobs" /> */}
+              <Route path="workflow/:workflowId" element={<WorkflowEditor />} />
+              <Route path="jobs" element={<Job />} />
             </Route>
         </Route>
       </>

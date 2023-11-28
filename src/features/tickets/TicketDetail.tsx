@@ -15,6 +15,7 @@ export default function TicketDetailUI() {
     const [ticket, setTicket] = useState<TicketDetail | null>(null)
     const [files, setFiles] = useState<{ [key: number]: File } | null>(null)
     const [loading, setLoading] = useState(true);
+    
     useEffect(() => {
         getTicket();
 

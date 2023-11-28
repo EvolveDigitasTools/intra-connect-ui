@@ -48,3 +48,21 @@ export interface Card {
     boardCardId: number,
     title: string
 }
+
+export interface WorkflowDetail {
+    id: number,
+    name: string,
+    description: string,
+    department: string
+}
+
+export interface Step {
+    id: number,
+    task: string,
+}
+
+export interface SpeedDialOption {
+    tootip: string,
+    icon: (iconClass: string) => JSX.Element,
+    action: () => void
+}
