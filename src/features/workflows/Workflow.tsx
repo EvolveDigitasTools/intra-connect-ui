@@ -34,16 +34,14 @@ export default function Workflow() {
         <section className="h-[72vh] overflow-y-scroll">
             {workflows.length > 0 && <section>
                 <section className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
-                    {workflows.map(workflow => <Card className="w-[250px] m-auto my-2 sm:w-[300px]">
+                    {workflows.map(workflow => <Card key={workflow.id} className="w-[250px] m-auto my-2 sm:w-[300px]">
                         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                             <p>
                                 {workflow.name.length > 20 ? workflow.name.substring(0, 17) + "..." : workflow.name}
                             </p>
                         </h5>
                         <p className="font-normal text-gray-700 dark:text-gray-400">
-                            <p>
-                                {workflow.description.length > 50 ? workflow.description.substring(0, 47) + "..." : workflow.description}
-                            </p>
+                            {workflow.description.length > 50 ? workflow.description.substring(0, 47) + "..." : workflow.description}
                         </p>
                         <Link to={`/dashboard/workflow/${workflow.id}`}>
                             <Button>
@@ -57,6 +55,6 @@ export default function Workflow() {
                 </section>
             </section>}
         </section>
-        
+
     </section >)
 }

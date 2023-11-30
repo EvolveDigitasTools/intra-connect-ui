@@ -53,12 +53,21 @@ export interface WorkflowDetail {
     id: number,
     name: string,
     description: string,
-    department: string
+    department: string,
+    steps: Step[]
 }
 
 export interface Step {
-    id: number,
-    task: string,
+    assigneesDesignation: string,
+    description: string,
+    id: string,
+    name: string, 
+    position: {
+        x: number,
+        y: number
+    },
+    type: string,
+    data: any
 }
 
 export interface SpeedDialOption {

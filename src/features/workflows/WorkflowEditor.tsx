@@ -9,18 +9,14 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
 import ReactFlow, { Background, Controls, Edge, Node, NodeTypes, OnConnect, OnEdgesChange, OnNodesChange, addEdge, applyEdgeChanges, applyNodeChanges, useEdgesState, useNodesState } from 'reactflow';
 import 'reactflow/dist/style.css';
-import EndPoint from "./workflow-elements/EndPoint";
 import SpeedDial from "../../components/SpeedDial";
 import Task from "./workflow-elements/Task";
 import TaskModal from "./TaskModal";
-
-const initialNodes: Node[] = [
-  { id: 'node-1', type: 'endPoint', position: { x: 0, y: 100 }, data: { value: 'Start' } },
-  { id: 'node-2', type: 'endPoint', position: { x: 800, y: 100 }, data: { value: 'End' } },
-];
+import { EndNode, StartNode } from "./workflow-elements/EndPoint";
 
 const nodeTypes: NodeTypes = {
-  endPoint: EndPoint,
+  start: StartNode,
+  end: EndNode,
   task: Task
 };
 
@@ -28,7 +24,7 @@ const nodeTypes: NodeTypes = {
 export default function WorkflowEditor() {
   const [workflow, setWorkflow] = useState<WorkflowDetail>({} as WorkflowDetail);
   const [loading, setLoading] = useState(true);
-  const [nodes, setNodes] = useState<Node[]>(initialNodes);
+  const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
   const [taskModalState, setTaskModalState] = useState<'none' | 'new' | 'update'>('none');
   const auth = useSelector((state: RootState) => state.auth);
@@ -60,7 +56,9 @@ export default function WorkflowEditor() {
         }
       })
       const workflow: WorkflowDetail = workflowRes.data.data.workflow
+      const nodes: Node[] = workflow.steps;
       setWorkflow(workflow)
+      setNodes(nodes)
       setLoading(false)
     } catch (error) {
       console.error(error)
