@@ -56,7 +56,8 @@ export interface WorkflowDetail {
     department: {
         name: string
     },
-    steps: Step[]
+    steps: Step[],
+    edges: Edge[]
 }
 
 export interface Step {
@@ -77,4 +78,10 @@ export interface SpeedDialOption {
     tootip: string,
     icon: (iconClass: string) => JSX.Element,
     action: () => void
+}
+
+export interface Edge {
+    id: number,
+    source: number,
+    target: number
 }

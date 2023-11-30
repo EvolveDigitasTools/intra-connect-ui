@@ -47,7 +47,7 @@ export default function WorkflowEditor() {
     [setEdges]
   );
 
-  const getWorkflow = async () => {
+  const getWorkflow = async (updateParams: any = null) => {
     try {
       const workflowId = params.workflowId;
       const workflowRes = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/workflow/${workflowId}`, {
@@ -62,8 +62,17 @@ export default function WorkflowEditor() {
         if (node)
           updatedNode.position = node.position
       })
+      const loadedEdges: Edge[] = workflow.edges.map(edge=> {
+        return {
+          id: edge.id + '',
+          source: edge.source + '',
+          target: edge.target + ''
+        }
+      })
       setWorkflow(workflow)
       setNodes(updatedNodes)
+      if(!updateParams || updateParams.updateEdge)
+      setEdges(loadedEdges)
       setLoading(false)
     } catch (error) {
       console.error(error)
@@ -89,7 +98,7 @@ export default function WorkflowEditor() {
     })
     setTaskModalState("none")
     if (stepRes.data.success) {
-      getWorkflow()
+      getWorkflow({updateEdge: false})
       return true
     }
     return false
@@ -101,16 +110,43 @@ export default function WorkflowEditor() {
 
   const saveWorkflow = async () => {
     let loadStep: Step | undefined
+    let loadEdges = workflow.edges
     for (let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
       loadStep = workflow.steps.find(loadStep => loadStep.id == node.id)
       if (loadStep?.position.x != node.position.x || loadStep?.position.y != node.position.y) {
         const formData = new FormData();
 
-        formData.append("position_x", node.position.x+'');
-        formData.append("position_y", node.position.y+'');
+        formData.append("position_x", node.position.x + '');
+        formData.append("position_y", node.position.y + '');
 
         const stepRes = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/step/${node.id}`, formData, {
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        })
+      }
+    }
+    for (let i = 0; i < edges.length; i++) {
+      const edge = edges[i];
+      const edgeExist = workflow.edges.find(workflowEdge => workflowEdge.source == Number(edge.source) && workflowEdge.target == Number(edge.target))
+      if (edgeExist)
+        loadEdges = loadEdges.filter(loadEdge => loadEdge.id != edgeExist.id)
+      else {
+        const formData = new FormData();
+
+        formData.append("source", edge.source);
+        formData.append("target", edge.target);
+
+        const edgeRes = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/edges/${workflow.id}`, formData, {
+          headers: {
+            Authorization: `Bearer ${auth.token}`
+          }
+        })
+      }
+      for (let i = 0; i < loadEdges.length; i++) {
+        const loadEdge = loadEdges[i];
+        await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/edges/${loadEdge.id}`, {
           headers: {
             Authorization: `Bearer ${auth.token}`
           }
