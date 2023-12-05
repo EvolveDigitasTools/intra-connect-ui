@@ -13,13 +13,7 @@ import SpeedDial from "../../components/SpeedDial";
 import Task from "./workflow-elements/Task";
 import TaskModal from "./TaskModal";
 import { EndNode, StartNode } from "./workflow-elements/EndPoint";
-
-const nodeTypes: NodeTypes = {
-  start: StartNode,
-  end: EndNode,
-  task: Task
-};
-
+import { nodeTypes } from "../../utils";
 
 export default function WorkflowEditor() {
   const [workflow, setWorkflow] = useState<WorkflowDetail>({} as WorkflowDetail);

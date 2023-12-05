@@ -85,3 +85,14 @@ export interface Edge {
     source: number,
     target: number
 }
+
+export interface JobMin {
+    id: number,
+    name: string
+}
+
+export interface JobDetail {
+    id: number,
+    name: string,
+    workflowId: number
+}

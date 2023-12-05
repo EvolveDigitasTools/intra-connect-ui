@@ -1,10 +1,14 @@
+import { NodeTypes } from "reactflow";
+import { EndNode, StartNode } from "./features/workflows/workflow-elements/EndPoint";
+import Task from "./features/workflows/workflow-elements/Task";
+
 export function getMimeTypeFromFileName(filename: string) {
     // Split the filename by dots to get the file extension
     const parts = filename.split('.');
     const extension = parts[parts.length - 1].toLowerCase();
 
     // Define a mapping of common file extensions to MIME types
-    const mimeTypes: {[key: string]: string} = {
+    const mimeTypes: { [key: string]: string } = {
         jpg: 'image/jpeg',
         jpeg: 'image/jpeg',
         png: 'image/png',
@@ -33,3 +37,9 @@ export function binaryStringToBlob(binaryString: string, mimeType: string) {
     // Step 3: Create a Blob from the Uint8Array.
     return new Blob([byteArray], { type: mimeType });
 }
+
+export const nodeTypes: NodeTypes = {
+    start: StartNode,
+    end: EndNode,
+    task: Task
+};
