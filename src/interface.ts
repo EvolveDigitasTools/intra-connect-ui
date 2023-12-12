@@ -53,11 +53,11 @@ export interface WorkflowDetail {
     id: number,
     name: string,
     description: string,
-    department: {
+    departments: {
         name: string
-    },
+    }[],
     steps: Step[],
-    edges: Edge[]
+    edges: EdgeJSON[]
 }
 
 export interface Step {
@@ -68,7 +68,7 @@ export interface Step {
     },
     type: string,
     data: {
-        name: string, 
+        name: string,
         description: string,
         assigneesDesignation: string,
     }
@@ -80,7 +80,7 @@ export interface SpeedDialOption {
     action: () => void
 }
 
-export interface Edge {
+export interface EdgeJSON {
     id: number,
     source: number,
     target: number
@@ -94,5 +94,15 @@ export interface JobMin {
 export interface JobDetail {
     id: number,
     name: string,
-    workflowId: number
+    workflowId: number,
+    steps: Step[],
+    createdAt: string
+}
+
+export interface Step {
+    approvers: string[],
+    assignees: string[],
+    timeNeeded: number,
+    timeUnit: string,
+    workflowStepId: number
 }

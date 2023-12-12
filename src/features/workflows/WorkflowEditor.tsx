@@ -167,7 +167,7 @@ export default function WorkflowEditor() {
     <header className="flex h-[8vh] items-center border-b border-light-border dark:border-dark-border">
       <Link className="h-full flex justify-center items-center w-[5vh] border-r hover:bg-dark-secondry-button border-light-border dark:border-dark-border" to={'/dashboard/workflows'}><nav><ArrowUturnLeftIcon className="w-3 h-3" /></nav></Link>
       <Tooltip content={workflow.name}><h1 className="px-2">{workflow.name.length > 20 ? workflow.name.substring(0, 20) + "..." : workflow.name} - </h1></Tooltip>
-      <Badge>{workflow.department.name}</Badge>
+      <Badge>{workflow.departments.map(department => department.name).join(", ")}</Badge>
       <Button className="ml-auto mr-10 p-0" onClick={saveWorkflow}>Save</Button>
     </header>
     <section className="h-[82vh] w-full">

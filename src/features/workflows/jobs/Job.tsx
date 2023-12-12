@@ -34,7 +34,7 @@ export default function Job() {
         <section className="h-[72vh] overflow-y-scroll">
             {jobs.length > 0 && <section>
                 <section className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
-                    {jobs.map(job => <Card className="w-[250px] m-auto my-2 sm:w-[300px]">
+                    {jobs.map(job => <Card key={job.id} className="w-[250px] m-auto my-2 sm:w-[300px]">
                         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                             <p>
                                 {job.name.length > 20 ? job.name.substring(0, 17) + "..." : job.name}
