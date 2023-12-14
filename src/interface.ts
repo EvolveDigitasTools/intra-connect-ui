@@ -106,3 +106,10 @@ export interface Step {
     timeUnit: string,
     workflowStepId: number
 }
+
+export interface TaskDetails {
+    id: string,
+    task: string,
+    description: string,
+    assigneesDesignation: string[]
+}

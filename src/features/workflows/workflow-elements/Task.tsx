@@ -1,6 +1,7 @@
 import { Handle, Position, useReactFlow, useStoreApi } from "reactflow";
 import AttachedDialog from "../../../components/AttachedDialog";
 import AddJobConfig from "../jobs/AddJobConfig";
+import TaskJobAction from "../jobs/TaskJobActions";
 
 export default function Task({ id, data, isConnectable, updateNode }: {
     id: string;
@@ -37,9 +38,13 @@ export default function Task({ id, data, isConnectable, updateNode }: {
     const taskUI = <div className={`${data.isNewJob ? data.isConfigDone ? 'bg-green-500 ' : 'bg-red-400 ' : "bg-light-background dark:bg-dark-background-secondry "}border-white border-[1px] text-white max-w-sm rounded overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 ease-in-out`}>
         <div className="p-2 text-center">
             <div className="font-bold content-center text-sm mb-1">{data.name}</div>
+            {/* {data.isJobCompletion ?
+                <TaskJobAction userEmail={data.myId.email} configDetails={data.configDetails} />
+                : */}
             <p className="text-xs">
-                {data.assignees}
+                {JSON.parse(data.assignees).map((assignee: string) => assignee).join(", ")}
             </p>
+            {/* } */}
         </div>
     </div>
 

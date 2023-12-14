@@ -13,10 +13,11 @@ interface MultiSelectAutoCompleteProps {
         selectedItem?: (item: string) => string,
         searchRule?: (item: string) => boolean
     }
-    required?: boolean
+    required?: boolean,
+    newInput?: boolean
 }
 
-export default function MultiSelectAutoComplete({ id, value: selectedItems, allItems, placeholder, onChange, rules, required = false }: MultiSelectAutoCompleteProps) {
+export default function MultiSelectAutoComplete({ id, value: selectedItems, allItems, placeholder, onChange, rules, required = false, newInput = false }: MultiSelectAutoCompleteProps) {
     const [itemInput, setItemInput] = useState("");
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [listIndex, setListIndex] = useState(0);
@@ -30,7 +31,9 @@ export default function MultiSelectAutoComplete({ id, value: selectedItems, allI
         setItemInput(e.target.value);
         if (e.target.value) {
             const searchRegex = new RegExp(e.target.value, 'i');
-            setSuggestions(allItems.filter(rules?.searchRule ? rules.searchRule : item => searchRegex.test(item)));
+            const newInputPush: string[] = newInput ? [e.target.value] : []
+            const updatedSuggestions = new Set([...allItems.filter(rules?.searchRule ? rules.searchRule : item => searchRegex.test(item)), ...newInputPush])
+            setSuggestions(Array.from(updatedSuggestions));
             setListIndex(0)
         } else {
             setSuggestions([]);
@@ -45,7 +48,7 @@ export default function MultiSelectAutoComplete({ id, value: selectedItems, allI
             setListIndex((listIndex + suggestions.length - 1) % suggestions.length);
         else if (e.key === 'Enter' && listIndex >= 0 && suggestions.length > 0) {
             e.preventDefault()
-            handleSuggestionClick(suggestions[listIndex])
+            handleSuggestionClick(listIndex == suggestions.length ? itemInput : suggestions[listIndex])
         }
     };
 

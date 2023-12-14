@@ -1,22 +1,30 @@
 import { Button, Label, Modal, TextInput, Textarea } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Notification } from "../../interface";
+import { Notification, TaskDetails } from "../../interface";
 import { addNotification } from "../notificationService/notificationSlice";
+import MultiSelectAutoComplete from "../../components/MultiSelectAutoComplete";
 
 interface NewTaskProps {
+    existingAssignees: string[],
     taskModalState: 'none' | 'new' | 'update',
     closeTaskModal: () => void
-    taskModalAction: (task: string, description: string, assigneesDesignation: string) => Promise<boolean>
-    taskDetails?: any
+    taskModalAction: (task: string, description: string, assigneesDesignation: string[]) => Promise<boolean>
+    taskDetails?: TaskDetails
 }
 
-export default function TaskModal({ taskModalState, closeTaskModal, taskModalAction, taskDetails }: NewTaskProps) {
+export default function TaskModal({ existingAssignees, taskModalState, closeTaskModal, taskModalAction, taskDetails }: NewTaskProps) {
     const [task, setTask] = useState('')
     const [description, setDescription] = useState('')
-    const [assigneesDesignation, setAssigneesDesgnation] = useState('')
+    const [assigneesDesignation, setAssigneesDesgnation] = useState<string[]>([])
     const [submitLoading, setSubmitLoading] = useState(false)
     const dispatch = useDispatch()
+
+    useEffect(() => {
+        setTask(taskDetails?.task ?? '')
+        setDescription(taskDetails?.description ?? '')
+        setAssigneesDesgnation(taskDetails?.assigneesDesignation ?? [])
+    }, [taskDetails?.task, taskDetails?.description, taskDetails?.assigneesDesignation])
 
     const formSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -33,7 +41,7 @@ export default function TaskModal({ taskModalState, closeTaskModal, taskModalAct
         }
         setTask('')
         setDescription('')
-        setAssigneesDesgnation('')
+        setAssigneesDesgnation([])
         setSubmitLoading(false)
     }
 
@@ -61,11 +69,13 @@ export default function TaskModal({ taskModalState, closeTaskModal, taskModalAct
                     <div className="mb-1 block">
                         <Label htmlFor="assignee" value="Enter assignees" />
                     </div>
-                    <TextInput
+                    <MultiSelectAutoComplete 
                         id="task"
                         placeholder="Enter your assignees name here"
                         value={assigneesDesignation}
-                        onChange={(event) => setAssigneesDesgnation(event.target.value)}
+                        allItems={existingAssignees}
+                        onChange={(items) => setAssigneesDesgnation(items)}
+                        newInput
                         required
                     />
                 </div>

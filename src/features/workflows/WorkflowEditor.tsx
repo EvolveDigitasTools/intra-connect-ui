@@ -3,16 +3,14 @@ import { Badge, Button, Spinner, Tooltip } from "flowbite-react";
 import { MdAddTask } from "react-icons/md";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { SpeedDialOption, Step, WorkflowDetail } from "../../interface";
+import { SpeedDialOption, Step, TaskDetails, WorkflowDetail } from "../../interface";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../../app/store";
-import ReactFlow, { Background, Controls, Edge, EdgeMouseHandler, Node, NodeTypes, OnConnect, OnEdgesChange, OnNodesChange, addEdge, applyEdgeChanges, applyNodeChanges, isEdge, useEdgesState, useNodesState } from 'reactflow';
+import ReactFlow, { Background, Controls, Edge, EdgeMouseHandler, Node, NodeMouseHandler, NodeTypes, OnConnect, OnEdgesChange, OnNodesChange, addEdge, applyEdgeChanges, applyNodeChanges, isEdge, useEdgesState, useNodesState } from 'reactflow';
 import 'reactflow/dist/style.css';
 import SpeedDial from "../../components/SpeedDial";
-import Task from "./workflow-elements/Task";
 import TaskModal from "./TaskModal";
-import { EndNode, StartNode } from "./workflow-elements/EndPoint";
 import { nodeTypes } from "../../utils";
 
 export default function WorkflowEditor() {
@@ -20,13 +18,24 @@ export default function WorkflowEditor() {
   const [loading, setLoading] = useState(true);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [existingAssignees, setExistingAssignees] = useState<string[]>([])
   const [taskModalState, setTaskModalState] = useState<'none' | 'new' | 'update'>('none');
+  const [selectedTask, setSelectedTask] = useState<TaskDetails | undefined>(undefined)
   const auth = useSelector((state: RootState) => state.auth);
   const params = useParams();
 
   useEffect(() => {
     getWorkflow();
   }, [])
+
+  useEffect(() => {
+    const updatedExtistingAssignees: string[] = []
+    nodes.forEach(node => {
+      if (node.data.assignees)
+        updatedExtistingAssignees.push(...JSON.parse(node.data.assignees))
+    })
+    setExistingAssignees(updatedExtistingAssignees)
+  }, [nodes])
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -56,7 +65,7 @@ export default function WorkflowEditor() {
         if (node)
           updatedNode.position = node.position
       })
-      const loadedEdges: Edge[] = workflow.edges.map(edge=> {
+      const loadedEdges: Edge[] = workflow.edges.map(edge => {
         return {
           id: edge.id + '',
           source: edge.source + '',
@@ -65,8 +74,8 @@ export default function WorkflowEditor() {
       })
       setWorkflow(workflow)
       setNodes(updatedNodes)
-      if(!updateParams || updateParams.updateEdge)
-      setEdges(loadedEdges)
+      if (!updateParams || updateParams.updateEdge)
+        setEdges(loadedEdges)
       setLoading(false)
     } catch (error) {
       console.error(error)
@@ -75,14 +84,23 @@ export default function WorkflowEditor() {
 
   const newTask = () => {
     setTaskModalState('new')
+    setSelectedTask(undefined)
   }
 
-  const addNewTask = async (task: string, description: string, assigneesDesignation: string): Promise<boolean> => {
+  const taskModalAction = async (task: string, description: string, assigneesDesignation: string[]): Promise<boolean> => {
+    if (taskModalState == 'new')
+      return await addNewTask(task, description, assigneesDesignation)
+    else if (taskModalState == 'update')
+      return await updateTask(task, description, assigneesDesignation)
+    return false
+  }
+
+  const addNewTask = async (task: string, description: string, assigneesDesignation: string[]): Promise<boolean> => {
     const formData = new FormData();
 
     formData.append("name", task);
     formData.append("description", description);
-    formData.append("assigneesDesignation", assigneesDesignation);
+    formData.append("assigneesDesignation", JSON.stringify(assigneesDesignation));
     formData.append("type", 'task')
 
     const stepRes = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/step/${workflow.id}/new`, formData, {
@@ -92,7 +110,28 @@ export default function WorkflowEditor() {
     })
     setTaskModalState("none")
     if (stepRes.data.success) {
-      getWorkflow({updateEdge: false})
+      getWorkflow({ updateEdge: false })
+      return true
+    }
+    return false
+  }
+
+  const updateTask = async (task: string, description: string, assigneesDesignation: string[]): Promise<boolean> => {
+    const formData = new FormData();
+
+    formData.append("name", task);
+    formData.append("description", description);
+    formData.append("assigneesDesignation", JSON.stringify(assigneesDesignation));
+    formData.append("type", 'task')
+
+    const stepRes = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/step/${workflow.id}/new`, formData, {
+      headers: {
+        Authorization: `Bearer ${auth.token}`
+      }
+    })
+    setTaskModalState("none")
+    if (stepRes.data.success) {
+      getWorkflow({ updateEdge: false })
       return true
     }
     return false
@@ -150,6 +189,18 @@ export default function WorkflowEditor() {
     alert('updated')
   }
 
+  const editNode: NodeMouseHandler = (e, node) => {
+    console.log('test', e, node)
+    const selectedTask: TaskDetails = {
+      id: node.id,
+      task: node.data.name,
+      description: node.data.description,
+      assigneesDesignation: JSON.parse(node.data.assignees)
+    }
+    setTaskModalState('update')
+    setSelectedTask(selectedTask)
+  }
+
   const workflowAction: SpeedDialOption[] = [{
     tootip: 'New Task',
     icon: (iconClass: string) => {
@@ -163,6 +214,7 @@ export default function WorkflowEditor() {
       <Spinner size="xl" />
     </section>)
 
+  // console.log(nodes)
   return (<section className="h-full w-full">
     <header className="flex h-[8vh] items-center border-b border-light-border dark:border-dark-border">
       <Link className="h-full flex justify-center items-center w-[5vh] border-r hover:bg-dark-secondry-button border-light-border dark:border-dark-border" to={'/dashboard/workflows'}><nav><ArrowUturnLeftIcon className="w-3 h-3" /></nav></Link>
@@ -176,6 +228,7 @@ export default function WorkflowEditor() {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeDoubleClick={editNode}
         onEdgeDoubleClick={deleteEdge}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
@@ -186,6 +239,6 @@ export default function WorkflowEditor() {
       </ReactFlow>
     </section>
     <SpeedDial speedDialOptions={workflowAction} />
-    <TaskModal taskModalState={taskModalState} taskModalAction={addNewTask} closeTaskModal={() => setTaskModalState('none')} />
+    <TaskModal existingAssignees={existingAssignees} taskModalState={taskModalState} taskDetails={selectedTask} taskModalAction={taskModalAction} closeTaskModal={() => { setTaskModalState('none'); setSelectedTask(undefined) }} />
   </section>)
 }
