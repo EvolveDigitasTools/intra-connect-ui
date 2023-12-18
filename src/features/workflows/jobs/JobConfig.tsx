@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Notification, WorkflowDetail } from "../../../interface";
+import { FieldValues, Notification, WorkflowDetail } from "../../../interface";
 import ReactFlow, { Background, Controls, Edge, Node, useEdgesState, useNodesState } from "reactflow";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
@@ -28,8 +28,24 @@ export default function JobConfig() {
   }, [])
 
   useEffect(() => {
-    const nodesToBeUpdated = nodes
+    let nodesToBeUpdated = nodes
     const trueNode = nodesToBeUpdated.find(node => node.data.isModalActive == true)
+    const tempAssignees: FieldValues = {}
+    nodes.forEach(node => {
+      if (node.data.configDetails.assigneesDesignationValues)
+        Object.keys(node.data.configDetails.assigneesDesignationValues).forEach(assignee => {
+          tempAssignees[assignee] = node.data.configDetails.assigneesDesignationValues[assignee]
+        })
+    })
+    nodesToBeUpdated = nodesToBeUpdated.map(node => {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          tempAssignees
+        }
+      }
+    })
     if (!trueNode && nodes.length > 0) {
       const nextIncompletedNode = nodesToBeUpdated.find(node => node.type == 'task' && node.data.isConfigDone == false)
       if (nextIncompletedNode) {
@@ -68,6 +84,7 @@ export default function JobConfig() {
           timeNeeded: null,
           timeUnit: null
         }
+        updatedNode.data.tempAssignees = {}
       })
       let firstIncompletedNode = updatedNodes.find(node => node.type == 'task')
       if (firstIncompletedNode)

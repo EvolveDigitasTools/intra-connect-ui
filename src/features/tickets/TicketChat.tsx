@@ -41,7 +41,6 @@ export default function TicketChat() {
                 Authorization: `Bearer ${auth.token}`
             }
         }).then(res => {
-            console.log(res)
             const chats: { message: string, createdAt: string, email: string, files: { id: number, fileName: string }[] }[] = res.data.data.chats;
             setMessages(chats.map(chat => {
                 const date = new Date(chat.createdAt);
@@ -70,7 +69,6 @@ export default function TicketChat() {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log('called')
         const files = e.target.files;
         updateFiles(files)
     };

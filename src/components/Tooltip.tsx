@@ -36,8 +36,10 @@ export default function Tooltip({ children, content, position = 'top' }: Tooltip
         >
             {children}
             {isHovered && (
-                <div className={`absolute ${positionClasses} px-2 py-1 bg-black text-white text-xs rounded-md z-10 border border-white whitespace-nowrap`}>
-                    {content}
+                <div className={`absolute ${positionClasses} z-10 w-full flex justify-center`}>
+                    <div className={`px-2 py-1 bg-black text-white text-xs rounded-md border border-white whitespace-nowrap`}>
+                        {content}
+                    </div>
                 </div>
             )}
         </div>

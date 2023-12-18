@@ -12,12 +12,17 @@ interface MultiSelectAutoCompleteProps {
     rules?: {
         selectedItem?: (item: string) => string,
         searchRule?: (item: string) => boolean
+    },
+    theme?: {
+        textField?: {
+            sizing?: string
+        }
     }
     required?: boolean,
     newInput?: boolean
 }
 
-export default function MultiSelectAutoComplete({ id, value: selectedItems, allItems, placeholder, onChange, rules, required = false, newInput = false }: MultiSelectAutoCompleteProps) {
+export default function MultiSelectAutoComplete({ id, value: selectedItems, allItems, placeholder, onChange, rules, theme, required = false, newInput = false }: MultiSelectAutoCompleteProps) {
     const [itemInput, setItemInput] = useState("");
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [listIndex, setListIndex] = useState(0);
@@ -85,6 +90,7 @@ export default function MultiSelectAutoComplete({ id, value: selectedItems, allI
             }}
             autoComplete="off"
             required={required ? selectedItems.length == 0 : false}
+            sizing={theme?.textField?.sizing}
         />
         {suggestions.length > 0 && (
             <ListGroup>

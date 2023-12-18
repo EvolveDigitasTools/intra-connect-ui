@@ -41,9 +41,6 @@ const LandingPage: React.FC = () => {
       setLoading(true)
       loginUsingCode(code);
     }
-    return () => {
-      // console.log('Component will unmount!');
-    }
   }, []);
 
   if (auth.isAuthenticated) {

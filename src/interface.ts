@@ -66,7 +66,7 @@ export interface Step {
         x: number,
         y: number
     },
-    type: string,
+    type: 'start' | 'end' | 'task',
     data: {
         name: string,
         description: string,
@@ -103,7 +103,7 @@ export interface Step {
     approvers: string[],
     assignees: string[],
     timeNeeded: number,
-    timeUnit: string,
+    timeUnit: 'minutes' | 'hours' | 'days' | 'weeks',
     workflowStepId: number
 }
 
@@ -112,4 +112,8 @@ export interface TaskDetails {
     task: string,
     description: string,
     assigneesDesignation: string[]
+}
+
+export interface FieldValues {
+    [key: string]: string[]
 }

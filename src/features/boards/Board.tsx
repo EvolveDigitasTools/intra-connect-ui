@@ -197,7 +197,6 @@ export default function BoardUI() {
     }
 
     const deleteCard = (cardId: number, listId: number) => {
-        console.log('cardId', cardId, listId)
         const updatedLists = board.lists.slice();
         const listIndex = updatedLists.findIndex(list => list.boardListId == listId)
         const cardOrder: number[] = JSON.parse(updatedLists[listIndex].cardOrder)
@@ -207,7 +206,6 @@ export default function BoardUI() {
             ...board,
             lists: updatedLists
         }
-        console.log(updatedBoardData)
         setBoard(updatedBoardData)
     }
 
@@ -241,7 +239,6 @@ export default function BoardUI() {
                                     if (!list)
                                         list = { id: 0, boardListId: 0, cardOrder: '[]', title: 'Error List' }
                                     const cards = JSON.parse(list.cardOrder).map((cardId: number) => board.cards.find(card => card.boardCardId == cardId) as Card)
-                                    console.log(list)
                                     return (
                                         <ListUI
                                             key={list.boardListId}

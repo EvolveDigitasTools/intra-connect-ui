@@ -10,14 +10,16 @@ interface NewTaskProps {
     taskModalState: 'none' | 'new' | 'update',
     closeTaskModal: () => void
     taskModalAction: (task: string, description: string, assigneesDesignation: string[]) => Promise<boolean>
+    deleteTask: () => Promise<boolean>
     taskDetails?: TaskDetails
 }
 
-export default function TaskModal({ existingAssignees, taskModalState, closeTaskModal, taskModalAction, taskDetails }: NewTaskProps) {
+export default function TaskModal({ existingAssignees, taskModalState, closeTaskModal, taskModalAction, deleteTask, taskDetails }: NewTaskProps) {
     const [task, setTask] = useState('')
     const [description, setDescription] = useState('')
     const [assigneesDesignation, setAssigneesDesgnation] = useState<string[]>([])
     const [submitLoading, setSubmitLoading] = useState(false)
+    const [deleteLoading, setDeleteLoading] = useState(false)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -44,6 +46,23 @@ export default function TaskModal({ existingAssignees, taskModalState, closeTask
         setAssigneesDesgnation([])
         setSubmitLoading(false)
     }
+    const deleteAction = async () => {
+        setDeleteLoading(true)
+        const isDeleteActionSuccessful = await deleteTask()
+        if (!isDeleteActionSuccessful) {
+            const notification: Notification = {
+                id: new Date().getTime(),
+                message: 'Some error occured please try again',
+                type: 'error',
+                timed: false
+            }
+            dispatch(addNotification(notification))
+        }
+        setTask('')
+        setDescription('')
+        setAssigneesDesgnation([])
+        setDeleteLoading(false)
+    }
 
     return (<Modal show={taskModalState != 'none'} size="md" onClose={closeTaskModal} popup>
         <Modal.Header>{taskModalState == 'new' ? 'Add New Task' : 'Update Task'}</Modal.Header>
@@ -69,7 +88,7 @@ export default function TaskModal({ existingAssignees, taskModalState, closeTask
                     <div className="mb-1 block">
                         <Label htmlFor="assignee" value="Enter assignees" />
                     </div>
-                    <MultiSelectAutoComplete 
+                    <MultiSelectAutoComplete
                         id="task"
                         placeholder="Enter your assignees name here"
                         value={assigneesDesignation}
@@ -79,8 +98,9 @@ export default function TaskModal({ existingAssignees, taskModalState, closeTask
                         required
                     />
                 </div>
-                <div className="w-full">
-                    <Button isProcessing={submitLoading} className="w-full" type="submit">{taskModalState == 'new' ? 'Add New Task' : 'Update Task'}</Button>
+                <div className="w-full flex justify-between">
+                    <Button isProcessing={submitLoading} className={`${taskModalState == 'update' ? 'w-[48%]' : 'w-full'}`} type="submit">{taskModalState == 'new' ? 'Add New Task' : 'Update Task'}</Button>
+                    {taskModalState == "update" && <Button isProcessing={deleteLoading} className="w-[48%]" onClick={deleteAction} color="failure">Delete Task</Button>}
                 </div>
             </form>
         </Modal.Body>
