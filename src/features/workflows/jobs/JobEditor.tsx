@@ -18,7 +18,7 @@ interface JobStep {
   type: 'start' | 'end' | 'task',
   assignees?: string[],
   approvers?: string[],
-  status?: 'incomplete' | 'done' | 'approved',
+  status?: 'incomplete' | 'done' | 'approved' | 'fixing',
   completedAt?: string,
   timeNeeded: number,
   timeUnit: 'minutes' | 'hours' | 'days' | 'weeks'
@@ -132,14 +132,25 @@ export default function JobEditor() {
             })
             if (isReadyToStart) {
               const nodeToBeUpdated = nodesToBeUpdated.find(node => node.id == step.workflowStepId)
-              if(nodeToBeUpdated?.data)
+              if (nodeToBeUpdated?.data)
+                nodeToBeUpdated.data.jobDetails = {
+                  startedAt: step.previousSteps.map(previousStep => { return new Date(previousStep.completedAt ?? '') }).reduce((latest, current) => {
+                    return latest > current ? latest : current;
+                  }),
+                  status: 'started'
+                }
+            }
+          }
+          else {
+            const nodeToBeUpdated = nodesToBeUpdated.find(node => node.id == step.workflowStepId)
+            if (nodeToBeUpdated?.data)
               nodeToBeUpdated.data.jobDetails = {
                 startedAt: step.previousSteps.map(previousStep => { return new Date(previousStep.completedAt ?? '') }).reduce((latest, current) => {
                   return latest > current ? latest : current;
                 }),
-                status: 'started'
+                completedAt: step.completedAt,
+                status: 'done'
               }
-            }
           }
         }
       })
@@ -197,12 +208,15 @@ export default function JobEditor() {
       if (!sourceJobStep) {
         const startJob = jobSteps.find(jobStep => jobStep.workflowStepId == workflowEdge.source)
         const startWorkflow = workflowSteps.find(workflowStep => Number(workflowStep.id) == workflowEdge.source)
+        const startJobLastAction = startJob?.stepActions[0]
+
         sourceJobStep = {
           workflowStepId: workflowEdge.source + '',
           type: startWorkflow?.type ?? 'task',
           assignees: startJob?.assignees,
           approvers: startJob?.approvers,
-          status: 'incomplete',
+          status: getJobStatus(startJobLastAction?.actionType),
+          completedAt: startJobLastAction?.actionTime,
           timeNeeded: startJob?.timeNeeded ?? 0,
           timeUnit: startJob?.timeUnit ?? 'minutes',
           nextSteps: [],
@@ -213,12 +227,15 @@ export default function JobEditor() {
       if (!targetJobStep) {
         const targetJob = jobSteps.find(jobStep => jobStep.workflowStepId == workflowEdge.target)
         const targetWorkflow = workflowSteps.find(workflowStep => Number(workflowStep.id) == workflowEdge.target)
+        const targetJobLastAction = targetJob?.stepActions[0]
+
         targetJobStep = {
           workflowStepId: workflowEdge.target + '',
           type: targetWorkflow?.type ?? 'end',
           assignees: targetJob?.assignees,
           approvers: targetJob?.approvers,
-          status: 'incomplete',
+          status: getJobStatus(targetJobLastAction?.actionType),
+          completedAt: targetJobLastAction?.actionTime,
           timeNeeded: targetJob?.timeNeeded ?? 0,
           timeUnit: targetJob?.timeUnit ?? 'minutes',
           nextSteps: [],
@@ -230,6 +247,19 @@ export default function JobEditor() {
       sourceJobStep.nextSteps.push(targetJobStep)
     })
     return startStep
+  }
+
+  const getJobStatus = (lastActionType: 'done' | 'approved' | 'declined' | undefined): 'done' | 'approved' | 'fixing' | 'incomplete' => {
+    switch (lastActionType) {
+      case "done":
+        return "done"
+      case "approved":
+        return "approved"
+      case "declined":
+        return "fixing"
+      default:
+        return "incomplete"
+    }
   }
 
   if (loading)

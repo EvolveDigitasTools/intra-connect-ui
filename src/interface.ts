@@ -104,7 +104,13 @@ export interface Step {
     assignees: string[],
     timeNeeded: number,
     timeUnit: 'minutes' | 'hours' | 'days' | 'weeks',
-    workflowStepId: number
+    workflowStepId: number,
+    stepActions: {
+        actionMessage: string,
+        actionTime: string,
+        actionType: 'done' | 'approved' | 'declined',
+        id: number
+    }[]
 }
 
 export interface TaskDetails {

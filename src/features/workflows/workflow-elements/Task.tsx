@@ -59,11 +59,14 @@ export default function Task({ id, data, isConnectable }: {
     const updateJob: React.FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault()
         setUpdateJobLoading(true)
+        const submitter = (e.nativeEvent as any).submitter as HTMLButtonElement;
+        const action = submitter.value;
+
         const formData = new FormData();
 
         formData.append("remarks", remarks);
 
-        axios.post(`${process.env.REACT_APP_BACKEND_URL}/job/${data.configDetails.id}/done`, formData, {
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/job/${data.configDetails.id}/${action}`, formData, {
             headers: {
                 Authorization: `Bearer ${auth.token}`
             }
@@ -71,8 +74,8 @@ export default function Task({ id, data, isConnectable }: {
             setUpdateJobLoading(false)
             const updatedJobDetails = {
                 ...jobDetails,
-                completedAt: new Date(),
-                status: 'done'
+                completedAt: action == 'done' ? new Date() : jobDetails.completedAt,
+                status: action == 'approve' ? 'approved' : (action == 'decline' ? 'rejected' : action)
             }
             setJobDetails(updatedJobDetails)
             setOpen(false)
@@ -80,7 +83,7 @@ export default function Task({ id, data, isConnectable }: {
     }
 
     const taskUI = <Tooltip content={data.description}>
-        <div onClick={() => setOpen(!open)} className={`${data.isNewJob ? data.isConfigDone ? 'bg-green-500 ' : 'bg-red-400 ' : "bg-light-background dark:bg-dark-background-secondry "}border-white border-[1px] text-white max-w-sm rounded overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 ease-in-out`}>
+        <div onClick={() => data.isNewJob && setOpen(!open)} className={`${data.isNewJob ? data.isConfigDone ? 'bg-green-500 ' : 'bg-red-400 ' : "bg-light-background dark:bg-dark-background-secondry "}border-white border-[1px] text-white max-w-sm rounded overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 ease-in-out`}>
             <div className="p-2 text-center">
                 <div className="font-bold content-center text-sm mb-1">{data.name}</div>
                 {['done', 'started'].includes(jobDetails?.status) ?
@@ -105,7 +108,11 @@ export default function Task({ id, data, isConnectable }: {
                 </div>
                 <TextInput value={remarks} sizing='sm' onChange={(e) => setRemarks(e.target.value)} className="mb-1" required />
             </div>
-            <Button isProcessing={updateJobLoading} size="xs" type="submit">Submit</Button>
+            {jobDetails.status == 'started' && <Button isProcessing={updateJobLoading} name="action" value="done" size="xs" type="submit">Submit</Button>}
+            {jobDetails.status == 'done' && <div className="w-full flex justify-between">
+                <Button isProcessing={updateJobLoading} name="action" value="approve" className='w-[48%]' type="submit" size="xs">Approve</Button>
+                <Button isProcessing={updateJobLoading} name="action" value="reject" className="w-[48%]" type="submit" size="xs" color="failure">Reject</Button>
+            </div>}
         </form >
     return (<div>
         {(data.isNewJob || ['done', 'started'].includes(jobDetails?.status)) ?
