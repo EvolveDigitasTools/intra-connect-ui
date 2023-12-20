@@ -75,7 +75,7 @@ export default function JobConfig() {
       const workflowLoad: WorkflowDetail = workflowRes.data.data.workflow
       const updatedNodes: Node[] = workflowLoad.steps;
       updatedNodes.forEach(updatedNode => {
-        updatedNode.data.isNewJob = true;
+        updatedNode.data.mode = 'newJob';
         updatedNode.data.isConfigDone = false;
         updatedNode.data.isModalActive = false;
         updatedNode.data.configDetails = {

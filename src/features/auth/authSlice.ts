@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-interface AuthState {
+export interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
   user: { [key: string]: any } | null;

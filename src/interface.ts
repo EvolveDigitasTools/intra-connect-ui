@@ -67,13 +67,41 @@ export interface Step {
         y: number
     },
     type: 'start' | 'end' | 'task',
-    data: {
-        name: string,
-        description: string,
-        assigneesDesignation: string,
-    }
+    data: StepData
 }
 
+export interface StepData {
+    name: string,
+    description: string,
+    assigneesDesignation: string,
+    mode: 'jobCompletion' | 'newJob',
+    isConfigDone?: boolean,
+    configDetails: StepDataConfigDetails,
+    jobDetails: StepDataJobDetails,
+    startWorkflowStep: WorkflowStep,
+    jobStepId: number,
+    isModalActive?: boolean,
+    jobId: number,
+    workflowDetail: WorkflowDetail,
+    assignees?: string,
+    tempAssignees?: FieldValues
+}
+
+export interface StepDataConfigDetails {
+    assignees: string[],
+    approvers: string[],
+    timeNeeded: number,
+    timeUnit: 'minutes' | 'hours' | 'days' | 'weeks'
+}
+
+export interface StepDataJobDetails {
+    status: 'incomplete' | 'started' | 'fix' | 'done' | 'approved',
+    startedAt?: string,
+    completedAt?: string,
+    approvedAt?: string,
+    statusMessage: string,
+    canPerformAction: boolean
+}
 export interface SpeedDialOption {
     tootip: string,
     icon: (iconClass: string) => JSX.Element,
@@ -122,4 +150,15 @@ export interface TaskDetails {
 
 export interface FieldValues {
     [key: string]: string[]
+}
+
+export interface WorkflowStep {
+    workflowStepId: number,
+    nextSteps: WorkflowStep[],
+    previousSteps: WorkflowStep[],
+    type: 'start' | 'end' | 'task',
+    assignees?: string[],
+    approvers?: string[],
+    timeNeeded: number,
+    timeUnit: 'minutes' | 'hours' | 'days' | 'weeks'
 }

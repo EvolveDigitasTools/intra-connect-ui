@@ -2,27 +2,14 @@ import { ArrowUturnLeftIcon } from "@heroicons/react/20/solid";
 import { Badge, Spinner, Tooltip } from "flowbite-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { EdgeJSON, FieldValues, Step, WorkflowDetail } from "../../../interface";
+import { EdgeJSON, FieldValues, Step, WorkflowDetail, WorkflowStep } from "../../../interface";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../app/store";
 import ReactFlow, { Background, Controls, Edge, Node, OnConnect, OnEdgesChange, OnNodesChange, addEdge, applyEdgeChanges, applyNodeChanges } from 'reactflow';
 import 'reactflow/dist/style.css';
-import { convertMinutes, getTimeDifferencefromNow, nodeTypes } from "../../../utils";
+import { convertMinutes, getNodesFromUpdatedJob, getTimeDifference, getTimeDifferencefromNow, nodeTypes } from "../../../utils";
 import { JobDetail } from "../../../interface";
-
-interface JobStep {
-  workflowStepId: string,
-  nextSteps: JobStep[],
-  previousSteps: JobStep[],
-  type: 'start' | 'end' | 'task',
-  assignees?: string[],
-  approvers?: string[],
-  status?: 'incomplete' | 'done' | 'approved' | 'fixing',
-  completedAt?: string,
-  timeNeeded: number,
-  timeUnit: 'minutes' | 'hours' | 'days' | 'weeks'
-}
 
 export default function JobEditor() {
   const [job, setJob] = useState<JobDetail>({} as JobDetail)
@@ -32,18 +19,32 @@ export default function JobEditor() {
   const [edges, setEdges] = useState<Edge[]>([]);
   const [expectedWorkflowTime, setExpectedWorkflowTime] = useState(0)
   const [timeTaken, setTimeTaken] = useState(0)
+  const [startWorkflowStep, setStartWorkflowStep] = useState<WorkflowStep | null>(null)
   const auth = useSelector((state: RootState) => state.auth);
   const params = useParams();
 
   useEffect(() => {
     getJob();
+  }, [])
 
+  useEffect(() => {
     const intervalId = setInterval(() => {
       if (job.createdAt)
         setTimeTaken(getTimeDifferencefromNow(job.createdAt))
     }, 60000);
+
+    const endNode = nodes.find(node => node.type == 'end')
+
+    if (job.createdAt && endNode?.data.jobDetails.status == 'started') {
+      clearInterval(intervalId)
+      setTimeTaken(getTimeDifference(job.createdAt, endNode.data.jobDetails.startedAt))
+    }
+    else {
+      if (job.createdAt)
+        setTimeTaken(getTimeDifferencefromNow(job.createdAt))
+    }
     return () => clearInterval(intervalId);
-  }, [])
+  }, [job.createdAt, nodes.find(node => node.type == 'end')?.data.jobDetails.status])
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -67,36 +68,7 @@ export default function JobEditor() {
         }
       })
       const job: JobDetail = jobRes.data.data.job
-      setTimeTaken(getTimeDifferencefromNow(job.createdAt))
-      getWorkflow(job)
-      setJob(job)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  const getWorkflow = async (job: JobDetail) => {
-    try {
-      const workflowRes = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/workflow/${job.workflowId}`, {
-        headers: {
-          Authorization: `Bearer ${auth.token}`
-        }
-      })
-      const workflow: WorkflowDetail = workflowRes.data.data.workflow
-      const updatedNodes: Node[] = workflow.steps;
-      updatedNodes.forEach(updatedNode => {
-        updatedNode.data.isJobCompletion = true;
-        const jobStep = job.steps.find(step => step.workflowStepId == Number(updatedNode.id))
-
-        updatedNode.data.configDetails = {
-          assignees: jobStep?.assignees,
-          approvers: jobStep?.approvers,
-          timeNeeded: jobStep?.timeNeeded,
-          timeUnit: jobStep?.timeUnit,
-          id: jobStep?.id,
-        }
-        updatedNode.data.myId = auth.user
-      })
+      const workflow = await getWorkflow(job.workflowId)
       const loadedEdges: Edge[] = workflow.edges.map(edge => {
         return {
           id: edge.id + '',
@@ -104,11 +76,35 @@ export default function JobEditor() {
           target: edge.target + ''
         }
       })
-      const startStep: JobStep = createStepsAndGetStartStep(workflow.steps, workflow.edges, job.steps)
-      startStep.completedAt = job.createdAt
-      setExpectedWorkflowTime(calculateWorkflowTime(startStep))
+      const startWorkflowStep: WorkflowStep = createStepsAndGetStartStep(workflow.steps, workflow.edges, job.steps)
+      workflow.steps.forEach(updatedNode => {
+        if (updatedNode.type == 'start')
+          updatedNode.data.jobDetails = {
+            status: 'approved',
+            statusMessage: '',
+            approvedAt: job.createdAt,
+            canPerformAction: false
+          }
+        updatedNode.data.mode = 'jobCompletion';
+        const jobStep = job.steps.find(step => step.workflowStepId == Number(updatedNode.id))
+
+        updatedNode.data.configDetails = {
+          assignees: jobStep?.assignees ?? [],
+          approvers: jobStep?.approvers ?? [],
+          timeNeeded: jobStep?.timeNeeded ?? 0,
+          timeUnit: jobStep?.timeUnit ?? 'minutes',
+        }
+        updatedNode.data.jobStepId = Number(jobStep?.id)
+        updatedNode.data.jobId = Number(jobId)
+        updatedNode.data.workflowDetail = workflow
+        updatedNode.data.startWorkflowStep = startWorkflowStep
+      })
+      const calculatedNodes = await getNodesFromUpdatedJob(Number(jobId), workflow, auth)
+      setExpectedWorkflowTime(calculateWorkflowTime(startWorkflowStep))
+      setNodes(calculatedNodes)
+      setStartWorkflowStep(startWorkflowStep)
       setWorkflow(workflow)
-      setNodes(updateJobActions(updatedNodes, startStep))
+      setJob(job)
       setEdges(loadedEdges)
       setLoading(false)
     } catch (error) {
@@ -116,50 +112,23 @@ export default function JobEditor() {
     }
   }
 
-  const updateJobActions = (nodesToBeUpdated: Node[], startStep: JobStep): Node[] => {
-    let stepsProcess = [startStep]
-    while (stepsProcess.length > 0) {
-      const updatedStepsProcess: JobStep[] = []
-      stepsProcess.forEach(step => {
-        if (step.status == 'approved')
-          updatedStepsProcess.push(...step.nextSteps)
-        else {
-          if (step.status == 'incomplete') {
-            let isReadyToStart = true
-            step.previousSteps.forEach(previousStep => {
-              if (previousStep.status != 'approved')
-                isReadyToStart = false
-            })
-            if (isReadyToStart) {
-              const nodeToBeUpdated = nodesToBeUpdated.find(node => node.id == step.workflowStepId)
-              if (nodeToBeUpdated?.data)
-                nodeToBeUpdated.data.jobDetails = {
-                  startedAt: step.previousSteps.map(previousStep => { return new Date(previousStep.completedAt ?? '') }).reduce((latest, current) => {
-                    return latest > current ? latest : current;
-                  }),
-                  status: 'started'
-                }
-            }
-          }
-          else {
-            const nodeToBeUpdated = nodesToBeUpdated.find(node => node.id == step.workflowStepId)
-            if (nodeToBeUpdated?.data)
-              nodeToBeUpdated.data.jobDetails = {
-                startedAt: step.previousSteps.map(previousStep => { return new Date(previousStep.completedAt ?? '') }).reduce((latest, current) => {
-                  return latest > current ? latest : current;
-                }),
-                completedAt: step.completedAt,
-                status: 'done'
-              }
-          }
+  const getWorkflow = async (workflowId: number): Promise<WorkflowDetail> => {
+    try {
+      const workflowRes = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/workflow/${workflowId}`, {
+        headers: {
+          Authorization: `Bearer ${auth.token}`
         }
-      })
-      stepsProcess = updatedStepsProcess
-    }
-    return nodesToBeUpdated
-  }
+      });
 
-  const calculateWorkflowTime = (startStep: JobStep): number => {
+      return workflowRes.data.data.workflow;
+    } catch (error) {
+      // Better error handling, potentially logging the error or notifying the user
+      console.error('Error fetching workflow:', error);
+      throw error;  // Re-throw the error to be handled by the calling function
+    }
+  };
+
+  const calculateWorkflowTime = (startStep: WorkflowStep): number => {
     // Helper function to convert all time to a common unit, e.g., minutes
     function convertTimeToMinutes(time: number, unit: string): number {
       const unitToMinutes: { [key: string]: number } = {
@@ -171,7 +140,7 @@ export default function JobEditor() {
       return time * unitToMinutes[unit];
     }
 
-    function calculateTime(step: JobStep): number {
+    function calculateTime(step: WorkflowStep): number {
       if (step.type == 'end') return 0;
 
       let timeInMinutes = convertTimeToMinutes(step.timeNeeded, step.timeUnit) + 30;
@@ -191,75 +160,56 @@ export default function JobEditor() {
     return calculateTime(startStep);
   }
 
-  const createStepsAndGetStartStep = (workflowSteps: Step[], workflowEdges: EdgeJSON[], jobSteps: Step[]): JobStep => {
-    const startStep: JobStep = {
-      workflowStepId: workflowSteps.find(workflowStep => workflowStep.type == 'start')?.id ?? '',
+  const createStepsAndGetStartStep = (workflowSteps: Step[], workflowEdges: EdgeJSON[], jobSteps: Step[]): WorkflowStep => {
+    const startStep: WorkflowStep = {
+      workflowStepId: Number(workflowSteps.find(workflowStep => workflowStep.type == 'start')?.id ?? 0),
       type: 'start',
-      status: 'approved',
       nextSteps: [],
       previousSteps: [],
       timeNeeded: 0,
       timeUnit: 'minutes'
     }
-    const jobStepsProcess: JobStep[] = [startStep]
+    const workflowStepsProcess: { [key: number]: WorkflowStep } = {}
+    workflowStepsProcess[startStep.workflowStepId] = startStep
     workflowEdges.forEach((workflowEdge) => {
-      let sourceJobStep = jobStepsProcess.find(jobStep => Number(jobStep.workflowStepId) == workflowEdge.source)
-      let targetJobStep = jobStepsProcess.find(jobStep => Number(jobStep.workflowStepId) == workflowEdge.target)
+      let sourceJobStep = workflowStepsProcess[workflowEdge.source]
+      let targetJobStep = workflowStepsProcess[workflowEdge.target]
       if (!sourceJobStep) {
-        const startJob = jobSteps.find(jobStep => jobStep.workflowStepId == workflowEdge.source)
-        const startWorkflow = workflowSteps.find(workflowStep => Number(workflowStep.id) == workflowEdge.source)
-        const startJobLastAction = startJob?.stepActions[0]
+        const startJobStep = jobSteps.find(jobStep => jobStep.workflowStepId == workflowEdge.source)
+        const startWorkflowStep = workflowSteps.find(workflowStep => Number(workflowStep.id) == workflowEdge.source)
 
         sourceJobStep = {
-          workflowStepId: workflowEdge.source + '',
-          type: startWorkflow?.type ?? 'task',
-          assignees: startJob?.assignees,
-          approvers: startJob?.approvers,
-          status: getJobStatus(startJobLastAction?.actionType),
-          completedAt: startJobLastAction?.actionTime,
-          timeNeeded: startJob?.timeNeeded ?? 0,
-          timeUnit: startJob?.timeUnit ?? 'minutes',
+          workflowStepId: workflowEdge.source,
+          type: startWorkflowStep?.type ?? 'task',
+          assignees: startJobStep?.assignees,
+          approvers: startJobStep?.approvers,
+          timeNeeded: startJobStep?.timeNeeded ?? 0,
+          timeUnit: startJobStep?.timeUnit ?? 'minutes',
           nextSteps: [],
           previousSteps: []
         }
-        jobStepsProcess.push(sourceJobStep)
+        workflowStepsProcess[workflowEdge.source] = sourceJobStep
       }
       if (!targetJobStep) {
-        const targetJob = jobSteps.find(jobStep => jobStep.workflowStepId == workflowEdge.target)
-        const targetWorkflow = workflowSteps.find(workflowStep => Number(workflowStep.id) == workflowEdge.target)
-        const targetJobLastAction = targetJob?.stepActions[0]
+        const endJobStep = jobSteps.find(jobStep => jobStep.workflowStepId == workflowEdge.target)
+        const endWorkflowStep = workflowSteps.find(workflowStep => Number(workflowStep.id) == workflowEdge.target)
 
         targetJobStep = {
-          workflowStepId: workflowEdge.target + '',
-          type: targetWorkflow?.type ?? 'end',
-          assignees: targetJob?.assignees,
-          approvers: targetJob?.approvers,
-          status: getJobStatus(targetJobLastAction?.actionType),
-          completedAt: targetJobLastAction?.actionTime,
-          timeNeeded: targetJob?.timeNeeded ?? 0,
-          timeUnit: targetJob?.timeUnit ?? 'minutes',
+          workflowStepId: workflowEdge.target,
+          type: endWorkflowStep?.type ?? 'end',
+          assignees: endJobStep?.assignees,
+          approvers: endJobStep?.approvers,
+          timeNeeded: endJobStep?.timeNeeded ?? 0,
+          timeUnit: endJobStep?.timeUnit ?? 'minutes',
           nextSteps: [],
           previousSteps: []
         }
-        jobStepsProcess.push(targetJobStep)
+        workflowStepsProcess[workflowEdge.target] = targetJobStep
       }
       targetJobStep.previousSteps.push(sourceJobStep)
       sourceJobStep.nextSteps.push(targetJobStep)
     })
     return startStep
-  }
-
-  const getJobStatus = (lastActionType: 'done' | 'approved' | 'declined' | undefined): 'done' | 'approved' | 'fixing' | 'incomplete' => {
-    switch (lastActionType) {
-      case "done":
-        return "done"
-      case "approved":
-        return "approved"
-      case "declined":
-        return "fixing"
-      default:
-        return "incomplete"
-    }
   }
 
   if (loading)
