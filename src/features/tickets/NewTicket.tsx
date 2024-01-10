@@ -7,6 +7,7 @@ import { RootState } from "../../app/store";
 import { Notification } from "../../interface";
 import { addNotification } from "../notificationService/notificationSlice";
 import { ListGroupItem } from "flowbite-react/lib/esm/components/ListGroup/ListGroupItem";
+import MultiSelectAutoComplete from "../../components/MultiSelectAutoComplete";
 
 export default function NewTicket({ getTickets }: { getTickets: () => void }) {
     const [newTicketOpen, setNewTicket] = useState(false);
@@ -136,35 +137,16 @@ export default function NewTicket({ getTickets }: { getTickets: () => void }) {
                     </div>
                     <div className="w-full p-2">
                         <div className="mb-2 block"><Label htmlFor="assignees" value="Add Assignees" /></div>
-                        <TextInput
-                            id="assigness"
-                            addon={selectedAssignees.map((assignee, index) => (
-                                <Tooltip key={index} content={assignee}>
-                                    <Badge className="hover:cursor-pointer border" onClick={() => handleRemoveAssignee(assignee)}>
-                                        {assignee.split('@')[0].replace(' ', '')}
-                                    </Badge>
-                                </Tooltip>
-                            ))}
-                            theme={{ addon: "max-w-[60%] min-w-[60%] flex-wrap inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-200 px-3 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-600 dark:text-gray-400" }}
-                            placeholder="Search Assignee" type="text"
-                            value={assigneeInput}
-                            onChange={handleInputChange}
-                            onKeyDown={handleKeyDown}
-                            onBlur={() => {
-                                listClearTimeoutRef.current = setTimeout(() => {
-                                    setAssigneeInput(''); setSuggestions([]); setListIndex(-1);
-                                }, 500);
+                        <MultiSelectAutoComplete
+                            id="assignees"
+                            value={selectedAssignees}
+                            allItems={allAssignees}
+                            onChange={items => setSelectedAssignees(items)}
+                            rules={{
+                                selectedItem: (item) => item.split('@')[0]
                             }}
-                            autoComplete="off"
-                            required={selectedAssignees.length == 0}
+                            required
                         />
-                        {suggestions.length > 0 && (
-                            <ListGroup>
-                                {suggestions.map((suggestion, index) => (
-                                    <ListGroupItem key={index} tabIndex={index} active={index == listIndex} onClick={() => handleSuggestionClick(suggestion)}>{suggestion}</ListGroupItem>
-                                ))}
-                            </ListGroup>
-                        )}
                     </div>
                     <div className="w-full p-2">
                         <Button isProcessing={newTicketLoading} className="w-full" type="submit">Raise Ticket</Button>

@@ -24,6 +24,7 @@ export default function Ticket() {
         }).then(res => {
             const tickets: TicketBrief[] = res.data.data.tickets
             setActiveTickets(tickets.filter(ticket => ticket.status == "open"));
+            setClosedTickets(tickets.filter(ticket => ticket.status == 'closed'));
         })
     }
 
@@ -37,6 +38,31 @@ export default function Ticket() {
                 <h2>Active Tickets</h2>
                 <section className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
                     {activeTickets.map(ticket => <Card className="w-[250px] m-auto my-2 sm:w-[300px]">
+                        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            <p>
+                                {ticket.title.length > 20 ? ticket.title.substring(0, 17) + "..." : ticket.title}
+                            </p>
+                        </h5>
+                        <p className="font-normal text-gray-700 dark:text-gray-400">
+                            <p>
+                                {ticket.description.length > 50 ? ticket.description.substring(0, 47) + "..." : ticket.description}
+                            </p>
+                        </p>
+                        <Link to={`${ticket.id}`}>
+                            <Button>
+                                <p>
+                                    Open Ticket
+                                </p>
+                            </Button>
+                        </Link>
+                    </Card>
+                    )}
+                </section>
+            </section>}
+            {closedTickets.length > 0 && <section>
+                <h2>Closed Tickets</h2>
+                <section className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3">
+                    {closedTickets.map(ticket => <Card className="w-[250px] m-auto my-2 sm:w-[300px]">
                         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                             <p>
                                 {ticket.title.length > 20 ? ticket.title.substring(0, 17) + "..." : ticket.title}
