@@ -23,7 +23,7 @@ export default function ListUI({ list, cards, index, addNewCard, updateCardText,
         setNewOpen(false)
     }
 
-    return <Draggable draggableId={list.boardListId + ''} index={index}>
+    return <Draggable draggableId={list.id + ''} index={index}>
         {provided => (
             <div
                 className="bg-light-list text-black dark:text-white dark:bg-dark-list rounded-xl shadow min-w-[270px] mx-2 h-fit"
@@ -34,10 +34,10 @@ export default function ListUI({ list, cards, index, addNewCard, updateCardText,
                 <header {...provided.dragHandleProps} className="flex gap-x-1 p-2 relative flex-grow-0 flex-shrink-0 justify-between items-start flex-wrap">
                     <h3 className=" text-sm px-2 py-1">{list?.title}</h3>
                     <Dropdown label="" dismissOnClick={false} placement="right-start" renderTrigger={() => <button className="p-2"><BsThreeDots /></button>}>
-                        <Dropdown.Item onClick={() => deleteList(list.boardListId)}>Delete List</Dropdown.Item>
+                        <Dropdown.Item onClick={() => deleteList(list.id)}>Delete List</Dropdown.Item>
                     </Dropdown>
                 </header>
-                <Droppable droppableId={'list-' + list?.boardListId} type="card">
+                <Droppable droppableId={'list-' + list?.id} type="card">
                     {(provided, snapshot) => (
                         <ol
                             className={`flex flex-col mx-1 px-1 gap-y-2 ${isNewOpen ? '' : 'min-h-[10px]'}`}
@@ -46,14 +46,14 @@ export default function ListUI({ list, cards, index, addNewCard, updateCardText,
                         >
                             {cards.map((card, index) => (
                                 <CardUI
-                                    key={card.boardCardId}
-                                    id={'card-' + card.boardCardId}
+                                    key={card.id}
+                                    id={'card-' + card.id}
                                     index={index}
                                     title={card?.title}
                                     edit={false}
-                                    onSave={(newTitle) => updateCardText(card.boardCardId, newTitle)}
+                                    onSave={(newTitle) => updateCardText(card.id, newTitle)}
                                     cancel={() => setNewOpen(false)}
-                                    deleteCard={() => deleteCard(card.boardCardId, list.boardListId)}
+                                    deleteCard={() => deleteCard(card.id, list.id)}
                                 />
                             ))}
                             {provided.placeholder}

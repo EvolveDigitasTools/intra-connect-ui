@@ -38,14 +38,13 @@ export interface BoardDetail {
 
 export interface List {
     id: number,
-    boardListId: number,
     cardOrder: string,
     title: string
 }
 
 export interface Card {
     id: number,
-    boardCardId: number,
+    mainId?: number,
     title: string
 }
 

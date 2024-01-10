@@ -2,45 +2,14 @@ import { PlusIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import axios from "axios";
 import { Button, Spinner, TextInput, Tooltip } from "flowbite-react";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { RootState } from "../../app/store";
-import { BoardDetail, Card, List } from "../../interface";
+import { BoardDetail, Card, List, Notification } from "../../interface";
 import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import ListUI from "./List";
-
-// const initialData: BoardDetail = {
-//     id: 1,
-//     title: 'Test Board',
-//     lists: [
-//         {
-//             id: 1,
-//             boardListId: 'list-1',
-//             title: 'To do',
-//             cardOrder: ['card-1', 'card-2'],
-//         },
-//         {
-//             id: 2,
-//             boardListId: 'list-2',
-//             title: 'Doing',
-//             cardOrder: ['card-3', 'card-4'],
-//         },
-//         {
-//             id: 3,
-//             boardListId: 'list-3',
-//             title: 'Done',
-//             cardOrder: [],
-//         },
-//     ],
-//     cards: [
-//         { id: 1, boardCard: 'card-1', title: 'Take out the garbage' },
-//         { id: 2, boardCard: 'card-2', title: 'Watch my favorite show' },
-//         { id: 3, boardCard: 'card-3', title: 'Charge my phone' },
-//         { id: 4, boardCard: 'card-4', title: 'Cook dinner' },
-//     ],
-//     // Facilitate reordering of the columns
-//     listOrder: ['list-1', 'list-2', 'list-3'],
-// };
+import { getNextAvailableId } from "../../utils";
+import { addNotification } from "../notificationService/notificationSlice";
 
 export default function BoardUI() {
     const auth = useSelector((state: RootState) => state.auth);
@@ -48,6 +17,9 @@ export default function BoardUI() {
     const [addListPromptOpen, setListPromptOpen] = useState(false)
     const [listName, setListName] = useState('');
     const [loading, setLoading] = useState(true);
+    const [saveLoading, setSaveLoading] = useState(false);
+    const [editBoard, setEditBoard] = useState(false)
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [board, setBoard] = useState<BoardDetail>({
         id: 0,
         title: 'Board',
@@ -55,10 +27,19 @@ export default function BoardUI() {
         listOrder: '[]',
         cards: []
     })
+    const dispatch = useDispatch()
 
     useEffect(() => {
         getBoard();
     }, []);
+
+    useEffect(() => {
+        if (!isInitialLoad) {
+            setEditBoard(true);
+        }
+    }, [board])
+
+    console.log('board', board)
 
     const getBoard = async () => {
         try {
@@ -70,6 +51,8 @@ export default function BoardUI() {
             })
             const board: BoardDetail = boardRes.data.data.board
             setBoard(board)
+            setEditBoard(false)
+            setIsInitialLoad(false)
             setLoading(false)
         } catch (error) {
             console.error(error)
@@ -92,8 +75,8 @@ export default function BoardUI() {
 
         if (type === 'list') {
             const newListOrder = JSON.parse(board.listOrder);
-            newListOrder.splice(source.index, 1);
-            newListOrder.splice(destination.index, 0, draggableId);
+            newListOrder.splice(Number(source.index), 1);
+            newListOrder.splice(Number(destination.index), 0, Number(draggableId));
 
             const newBoardData: BoardDetail = {
                 ...board,
@@ -103,8 +86,8 @@ export default function BoardUI() {
             return;
         }
 
-        const homeListIndex = board.lists.findIndex(list => list.boardListId === Number(source.droppableId.split('-')[1]))
-        const foreignListIndex = board.lists.findIndex(list => list.boardListId === Number(destination.droppableId.split('-')[1]))
+        const homeListIndex = board.lists.findIndex(list => list.id === Number(source.droppableId.split('-')[1]))
+        const foreignListIndex = board.lists.findIndex(list => list.id === Number(destination.droppableId.split('-')[1]))
 
         if (!(homeListIndex >= 0 && foreignListIndex >= 0))
             return
@@ -112,8 +95,8 @@ export default function BoardUI() {
         const updatedLists = board.lists.slice();
         const homeListCardOrder = JSON.parse(updatedLists[homeListIndex].cardOrder)
         const foreignListCardOrder = JSON.parse(updatedLists[foreignListIndex].cardOrder)
-        homeListCardOrder.splice(source.index, 1);
-        foreignListCardOrder.splice(destination.index, 0, Number(draggableId.split('-')[1]));
+        homeListCardOrder.splice(Number(source.index), 1);
+        foreignListCardOrder.splice(Number(destination.index), 0, Number(draggableId.split('-')[1]));
         updatedLists[homeListIndex].cardOrder = JSON.stringify(homeListCardOrder)
         updatedLists[foreignListIndex].cardOrder = JSON.stringify(foreignListCardOrder)
 
@@ -132,12 +115,11 @@ export default function BoardUI() {
         const updatedLists = board.lists.slice();
         const listOrder = JSON.parse(board.listOrder)
         const newList: List = {
-            id: board.lists.length,
-            boardListId: board.lists.length,
+            id: getNextAvailableId(board.lists),
             title: newListName,
             cardOrder: '[]',
         }
-        listOrder.push(board.lists.length);
+        listOrder.push(newList.id);
         updatedLists.push(newList)
         const updatedBoardData: BoardDetail = {
             ...board,
@@ -155,11 +137,10 @@ export default function BoardUI() {
         const listIndex = board.lists.findIndex((list) => list.id == listId)
         const cardOrder = JSON.parse(board.lists[listIndex].cardOrder)
         const newCard: Card = {
-            id: board.cards.length,
-            boardCardId: board.cards.length,
+            id: getNextAvailableId(board.cards),
             title: newCardText
         }
-        cardOrder.push(board.cards.length);
+        cardOrder.push(newCard.id);
         updatedCards.push(newCard)
         updatedLists[listIndex].cardOrder = JSON.stringify(cardOrder)
         const updatedBoardData: BoardDetail = {
@@ -187,7 +168,7 @@ export default function BoardUI() {
         const updatedLists = board.lists.slice();
         const listOrder: number[] = JSON.parse(board.listOrder)
         listOrder.splice(listOrder.findIndex(listId => listId == listId), 1)
-        updatedLists.slice(updatedLists.findIndex(list => list.boardListId == listId), 1)
+        updatedLists.slice(updatedLists.findIndex(list => list.id == listId), 1)
         const updatedBoardData: BoardDetail = {
             ...board,
             lists: updatedLists,
@@ -198,7 +179,7 @@ export default function BoardUI() {
 
     const deleteCard = (cardId: number, listId: number) => {
         const updatedLists = board.lists.slice();
-        const listIndex = updatedLists.findIndex(list => list.boardListId == listId)
+        const listIndex = updatedLists.findIndex(list => list.id == listId)
         const cardOrder: number[] = JSON.parse(updatedLists[listIndex].cardOrder)
         cardOrder.splice(cardOrder.findIndex(id => id == cardId), 1)
         updatedLists[listIndex].cardOrder = JSON.stringify(cardOrder)
@@ -209,6 +190,55 @@ export default function BoardUI() {
         setBoard(updatedBoardData)
     }
 
+    const saveBoard = () => {
+        setSaveLoading(true)
+        const formData = new FormData();
+
+        const lists: {
+            boardListId: number,
+            cardOrder: string,
+            title: string
+        }[] = board.lists.map(list => {
+            return {
+                boardListId: list.id,
+                cardOrder: list.cardOrder,
+                title: list.title
+            }
+        })
+
+        const cards: {
+            boardCardId: number,
+            id: number,
+            title: string
+        }[] = board.cards.map(card => {
+            return {
+                boardCardId: card.id,
+                id: card.mainId ?? 0,
+                title: card.title
+            }
+        })
+
+        formData.append("listOrder", board.listOrder);
+        formData.append("lists", JSON.stringify(lists));
+        formData.append("cards", JSON.stringify(cards));
+
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/board/${board.id}`, formData, {
+            headers: {
+                Authorization: `Bearer ${auth.token}`
+            }
+        }).then(res => {
+            setSaveLoading(false)
+            setEditBoard(false)
+            const notification: Notification = {
+                id: new Date().getTime(),
+                message: 'Saved',
+                type: 'success',
+                timed: true
+            }
+            dispatch(addNotification(notification))
+        })
+    }
+
     if (loading)
         return (<section className="w-full h-full flex justify-center items-center">
             <Spinner size="xl" />
@@ -216,8 +246,9 @@ export default function BoardUI() {
 
     return (<section className="h-full flex">
         <section className="h-full w-full">
-            <header className="flex h-[8vh] p-3 items-center border-b border-light-border dark:border-dark-border">
+            <header className="flex h-[8vh] p-3 items-center border-b border-light-border dark:border-dark-border justify-between">
                 <Tooltip content={board?.title}><h1 className="px-2">{board ? board.title.length > 20 ? board.title.substring(0, 20) + "..." : board.title : ""}</h1></Tooltip>
+                {editBoard && <Button size='xs' isProcessing={saveLoading} onClick={() => saveBoard()}>Save Board</Button>}
             </header>
             <DragDropContext
                 onDragEnd={onDragEnd}
@@ -235,13 +266,13 @@ export default function BoardUI() {
                         >
                             <ol className="inline-flex" style={{ minWidth: `${286 * JSON.parse(board.listOrder).length}px` }}>
                                 {JSON.parse(board.listOrder).map((listId: number, index: number) => {
-                                    let list = board.lists.find(list => list.boardListId == listId);
+                                    let list = board.lists.find(list => list.id == listId);
                                     if (!list)
-                                        list = { id: 0, boardListId: 0, cardOrder: '[]', title: 'Error List' }
-                                    const cards = JSON.parse(list.cardOrder).map((cardId: number) => board.cards.find(card => card.boardCardId == cardId) as Card)
+                                        list = { id: 0, cardOrder: '[]', title: 'Error List' }
+                                    const cards = JSON.parse(list.cardOrder).map((cardId: number) => board.cards.find(card => card.id == cardId) as Card)
                                     return (
                                         <ListUI
-                                            key={list.boardListId}
+                                            key={list.id}
                                             list={list}
                                             cards={cards}
                                             index={index}

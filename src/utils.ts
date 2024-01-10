@@ -186,6 +186,32 @@ export const minifyTimeUnit = (timeUnit: 'minutes' | 'hours' | 'days' | 'weeks')
             return ''
     }
 }
+
+export const getNextAvailableId = (items: { id: string | number }[]): number => {
+    if (items.length === 0) {
+        return 1; // Return 1 if the list is empty
+    }
+
+    const ids = items
+        .map(item => Number(item.id)) // Convert all IDs to numbers
+        .filter(id => !isNaN(id) && id > 0) // Filter out invalid IDs
+        .sort((a, b) => a - b); // Sort IDs in ascending order
+
+    if (ids.length === 0) {
+        return 1; // Return 1 if no valid IDs are found
+    }
+
+    let nextId = 1;
+    for (const id of ids) {
+        if (id > nextId) {
+            break; // Found a gap in the sequence
+        }
+        nextId = id + 1;
+    }
+
+    return nextId;
+}
+
 export const nodeTypes: NodeTypes = {
     start: StartNode,
     end: EndNode,
