@@ -93,12 +93,20 @@ export default function BoardUI() {
             return
 
         const updatedLists = board.lists.slice();
-        const homeListCardOrder = JSON.parse(updatedLists[homeListIndex].cardOrder)
-        const foreignListCardOrder = JSON.parse(updatedLists[foreignListIndex].cardOrder)
-        homeListCardOrder.splice(Number(source.index), 1);
-        foreignListCardOrder.splice(Number(destination.index), 0, Number(draggableId.split('-')[1]));
-        updatedLists[homeListIndex].cardOrder = JSON.stringify(homeListCardOrder)
-        updatedLists[foreignListIndex].cardOrder = JSON.stringify(foreignListCardOrder)
+        if (homeListIndex == foreignListIndex) {
+            const cardOrder = JSON.parse(updatedLists[homeListIndex].cardOrder)
+            cardOrder.splice(Number(source.index), 1);
+            cardOrder.splice(Number(destination.index), 0, Number(draggableId.split('-')[1]));
+            updatedLists[homeListIndex].cardOrder = JSON.stringify(cardOrder)
+        }
+        else {
+            const homeListCardOrder = JSON.parse(updatedLists[homeListIndex].cardOrder)
+            const foreignListCardOrder = JSON.parse(updatedLists[foreignListIndex].cardOrder)
+            homeListCardOrder.splice(Number(source.index), 1);
+            foreignListCardOrder.splice(Number(destination.index), 0, Number(draggableId.split('-')[1]));
+            updatedLists[homeListIndex].cardOrder = JSON.stringify(homeListCardOrder)
+            updatedLists[foreignListIndex].cardOrder = JSON.stringify(foreignListCardOrder)
+        }
 
         const updatedBoardData: BoardDetail = {
             ...board,
