@@ -80,7 +80,7 @@ export default function Task({ id, data, isConnectable }: {
     const taskUI = <Tooltip content={data.description}>
         <div onClick={() => data.mode == 'newJob' && setOpen(!open)} className={`${data.mode == 'newJob' ? data.isConfigDone ? 'bg-green-500 ' : 'bg-red-400 ' : "bg-light-background dark:bg-dark-background-secondry "}border-white border-[1px] text-white max-w-sm rounded overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 ease-in-out`}>
             <div className="p-2 text-center">
-                <div className="font-bold content-center text-sm mb-1">{data.name}</div>
+                <div className="font-bold content-center text-sm mb-1">{data.name.length > 25 ? data.name.substring(0, 25) + "..." : data.name}</div>
                 {['started', 'fix', 'done', 'approved'].includes(data.jobDetails?.status) ?
                     <TaskJobAction configDetails={data.configDetails} jobDetails={data.jobDetails} taskModalAction={taskModalAction} />
                     :
