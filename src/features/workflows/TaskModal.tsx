@@ -82,7 +82,17 @@ export default function TaskModal({ existingAssignees, taskModalState, closeTask
                 </div>
                 <div className="w-full mb-2">
                     <div className="mb-1 block"><Label htmlFor="description" value="Task Description" /></div>
-                    <Textarea value={description} onChange={(e) => setDescription(e.target.value)} id="description" placeholder="Describe your task" required />
+                    <Textarea
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        id="description"
+                        placeholder="Describe your task"
+                        maxLength={250}
+                        required
+                    />
+                    <div className="text-sm text-gray-600">
+                        {250 - description.length} characters remaining
+                    </div>
                 </div>
                 <div className="mb-2">
                     <div className="mb-1 block">
