@@ -5,12 +5,14 @@ export interface AuthState {
   isAuthenticated: boolean;
   token: string | null;
   user: { [key: string]: any } | null;
+  redirectPath: string | null;
 }
 
 const initialState: AuthState = {
   isAuthenticated: (localStorage.getItem('token') && localStorage.getItem('token') != 'undefined') ? true : false,
   token: localStorage.getItem('token'),
   user: (localStorage.getItem('user') && localStorage.getItem('user') != 'undefined') ? JSON.parse(localStorage.getItem('user') || "") : null,
+  redirectPath: localStorage.getItem('redirect-path')
 };
 
 const authSlice = createSlice({
@@ -36,9 +38,17 @@ const authSlice = createSlice({
       localStorage.removeItem("token")
       localStorage.removeItem("user")
     },
+    saveRedirect: (state, action: PayloadAction<{ path: string; }>) => {
+      state.redirectPath = action.payload.path
+      localStorage.setItem('redirect-path', action.payload.path)
+    },
+    removeRedirect: (state) => {
+      state.redirectPath = null;
+      localStorage.removeItem('redirect-path')
+    }
     // More actions...
   },
 });
 
-export const { loginSuccess, logout } = authSlice.actions;
+export const { loginSuccess, logout, saveRedirect, removeRedirect } = authSlice.actions;
 export default authSlice.reducer;

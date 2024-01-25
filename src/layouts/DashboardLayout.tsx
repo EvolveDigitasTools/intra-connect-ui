@@ -1,5 +1,6 @@
-import { useSelector } from "react-redux";
-import { Navigate, Outlet } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { saveRedirect } from "../features/auth/authSlice"
 import { RootState } from "../app/store";
 import SidebarLeft from "../features/sidebar/Sidebar";
 import { useEffect, useState } from "react";
@@ -9,10 +10,12 @@ import { BsFillCaretRightSquareFill } from 'react-icons/bs';
 export default function DashboardLayout() {
     const auth = useSelector((state: RootState) => state.auth);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    
+    const location = useLocation()
+    const dispatch = useDispatch()
+
     useEffect(() => {
-        if(window.innerWidth < 640)
-        setIsSidebarOpen(false)
+        if (window.innerWidth < 640)
+            setIsSidebarOpen(false)
     }, [])
 
     if (auth.isAuthenticated)
@@ -23,8 +26,11 @@ export default function DashboardLayout() {
                 <Outlet />
             </main>
         </section>)
-    else
+    else {
+        const path: string = location.pathname
+        dispatch(saveRedirect({ path }))
         return (<div>
             <Navigate to='/' />
         </div>)
+    }
 }

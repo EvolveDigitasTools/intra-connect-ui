@@ -3,7 +3,7 @@ import '../index.css';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginSuccess } from '../features/auth/authSlice';
+import { loginSuccess, removeRedirect } from '../features/auth/authSlice';
 import { RootState } from '../app/store';
 import { Spinner } from 'flowbite-react';
 import { Notification } from '../interface';
@@ -32,10 +32,10 @@ const LandingPage: React.FC = () => {
           type: 'error',
           timed: false
         }
-        if(process.env.NODE_ENV != 'development')
-        dispatch(addNotification(notification))
+        if (process.env.NODE_ENV != 'development')
+          dispatch(addNotification(notification))
       }
-    };    
+    };
 
     if (code) {
       setLoading(true)
@@ -44,9 +44,16 @@ const LandingPage: React.FC = () => {
   }, []);
 
   if (auth.isAuthenticated) {
-    return (<div>
-      <Navigate to="/dashboard" />
-    </div>)
+    const redirect = auth.redirectPath
+    setTimeout(() => dispatch(removeRedirect()), 1000)    
+    if (redirect)
+      return (<div>
+        <Navigate to={redirect} />
+      </div>)
+    else
+      return (<div>
+        <Navigate to="/dashboard" />
+      </div>)
   }
 
   if (loading)

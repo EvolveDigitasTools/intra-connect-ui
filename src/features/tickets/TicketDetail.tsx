@@ -39,9 +39,12 @@ export default function TicketDetailUI() {
             for (let i = 0; i < ticket.files.length; i++) {
                 const fileDetails = ticket.files[i]
                 const fileDetailsUrl = `${process.env.REACT_APP_BACKEND_URL}/files/${fileDetails.id}`
-                const fileResponse = await fetch(fileDetailsUrl);
-                const fileJson = await fileResponse.json();
-                const file = await fileJson?.data?.file
+                const fileResponse = await axios.get(fileDetailsUrl, {
+                    headers: {
+                        Authorization: `Bearer ${auth.token}`
+                    }
+                });
+                const file = await fileResponse?.data?.data?.file
                 let fileData = new File([binaryStringToBlob(file.fileContent, getMimeTypeFromFileName(file.fileName))], file.fileName, { type: getMimeTypeFromFileName(file.fileName) });
                 files[fileDetails.id] = fileData
             }
@@ -76,7 +79,7 @@ export default function TicketDetailUI() {
         });
         setCloseTicketModalStatus(false)
         setCloseLoading(false)
-        if(closeTicket.data.success) {
+        if (closeTicket.data.success) {
             navigate('/dashboard/tickets')
         }
     }
@@ -108,7 +111,7 @@ export default function TicketDetailUI() {
                 </article>
                 {ticket && ticket.files.length > 0 && <section className="flex p-2">
                     <label>Attachments: </label>
-                    {ticket.files.map(file => <Badge className="m-1 cursor-pointer" onClick={() => viewAttachment(file.id)}>{file.fileName}</Badge>)}
+                    {ticket.files.map(file => <Badge key={file.id} className="m-1 cursor-pointer" onClick={() => viewAttachment(file.id)}>{file.fileName}</Badge>)}
                 </section>}
                 <section className="flex p-2">
                     <label>Assignees: </label>
