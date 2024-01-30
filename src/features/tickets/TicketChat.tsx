@@ -105,7 +105,7 @@ export default function TicketChat() {
                 {messages.map(message =>
                     <div className={`message-container max-w-[80%] flex w-fit my-2 rounded-lg bg-light-background dark:bg-dark-background ${message.email == auth.user?.email ? 'ml-auto mine' : 'mr-auto other'}`}>
                         {message.email != auth.user?.email && <header className="text-xs text-dark-primary">{message.email.split('@')[0]}</header>}
-                        <article className=" text-base whitespace-pre m-1">{message.message}</article>
+                        <article className=" text-base whitespace-pre-wrap m-1">{message.message}</article>
                         <span className="text-[10px] mt-auto">{message.createdAt}</span>
                     </div>
                 )}

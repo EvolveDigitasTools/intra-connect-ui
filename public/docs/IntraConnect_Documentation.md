@@ -1,42 +1,63 @@
-
-# Intra-Connect Documentation   
+# Intra-Connect Documentation
 
 ## Introduction
+
 Welcome to Intra-Connect, your comprehensive tool for managing internal tasks and processes. Designed to streamline workflows within your company, Intra-Connect offers a suite of features tailored to enhance productivity and collaboration.
 
-
 ## Ticket System
-This is used for creating ticket whenever you encounter a problem.
+
+### Purpose
+
+The main purpose of tickets is to raise issues to concerned people. Using this we can easily track status of tickets and also check history of tickets.
 
 ### Creating a Ticket
-1. Go to Tickets Pane in the sidebar
-1. James Monroe
-1. John Quincy Adams
 
-## Getting Started
-### Logging In
-- Access Intra-Connect using your company Zoho account.
-- Upon logging in, you'll be directed to the dashboard.
+    1. Navigate to the 'Tickets Pane' in the sidebar.
+    2. Click on the 'New Ticket' button on the right side. A modal will pop up.
+    3. Enter the ticket title, description, and files (optional, less than 2MB), and select the assignee(s) for the ticket.
+    4. Click on 'Raise Ticket'. The ticket will be raised, and an email notification will be sent to all the assignees.
 
-## Navigating the Application
-- **Dashboard**: Your starting point, providing a quick overview of various functionalities.
-- **Sidebar**: Use this to navigate through the application’s features.
+### Accessing the Ticket
 
-## Feature Guide
-### Ticket System
-- **Creating a Ticket**: Click 'New Ticket' and provide details like title, description, attachments, and assignees.
-- **Managing Tickets**: Access your active tickets through the sidebar. Click on a ticket to view details and engage in chat discussions.
+    1. Go to the 'Tickets Pane' in the sidebar.
+    2. Select the ticket you wish to view. This will open the ticket detail view.
+    3. Here, you can view the description, attached files, assignees, and a chat interface for messaging and file sharing related to the ticket.
 
-### Trello Boards
-- **Accessing Boards**: Click 'Boards' in the sidebar to view all available boards.
-- **Using Boards**: Interact with the boards, similar to Trello, for task management.
+### Closing the Ticket
 
-### Workflow and Jobs
-- **Creating Workflows**: Select 'Workflow' in the sidebar, give your workflow a title and department, and use the graph-like editor to design it.
-- **Jobs Creation**: After workflow approval, create jobs under the 'Jobs' section by referencing the approved workflows.
+Once a ticket is resolved, it's important to close it:
+
+- Simply click on the 'Close Ticket' button (marked with a red-outlined cross) to mark the ticket as resolved.
+
+## Boards
+
+### Purpose
+
+Boards in Intra-Connect are essential for organizing and tracking tasks within a project. They function like a digital bulletin board, enabling the creation of task cards that can be dynamically moved to reflect progress. This visual arrangement provides a clear snapshot of project status, task responsibilities, and progress, facilitating efficient teamwork and project management.
+
+### Creating a Board (Mainly for Project Managers)
+
+    1. Navigate to the 'Boards Pane' in the sidebar.
+    2. Click on the 'New Board' button, located on the right side. A modal will appear.
+    3. Enter the Board title and select the assignees for the board.
+    4. Click on 'Create Board'. The board will then be created, ready for use.
+
+### Usage
+
+- **Accessing Boards**: Click on 'Boards' in the sidebar to view and interact with all available boards.
+- **Creating Lists**: Create a list (a group of cards) by clicking on the 'Add Another List' option.
+- **Creating Cards**: After creating a list, you can add new cards by clicking on the 'Add a Card' option within a list.
+- **Saving Boards**: It is important to save your changes. Once you are done with your adjustments in boards and lists, click on the 'Save Board' option.
+
+## Workflow and Jobs
+
+- **Creating Workflows**: Navigate to 'Workflow' in the sidebar. Provide a title and department for your workflow and use the graph-like editor to design it.
+- **Jobs Creation**: Upon workflow approval, go to the 'Jobs' section to create jobs, referencing the approved workflows.
 
 ## Troubleshooting and Support
-- For any issues, contact the development team directly.
+
+- For any technical issues or queries, please contact the development team at `jatina@evolvedigitas.com` or call `8810507440`.
 
 ## Changelog
-- Stay updated with new features and changes in the changelog section.
+
+- Keep yourself updated with the latest features, improvements, and changes by checking the changelog section regularly.
