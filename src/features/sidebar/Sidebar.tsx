@@ -1,8 +1,9 @@
 import { Sidebar } from "flowbite-react";
-import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser, } from 'react-icons/hi';
+import { HiChartPie } from 'react-icons/hi';
 import { GoWorkflow } from "react-icons/go";
 import { IoIosGitNetwork } from "react-icons/io";
 import { BsFillTicketDetailedFill, BsFillCaretLeftSquareFill, BsClipboardDataFill } from 'react-icons/bs';
+import { SiReadthedocs } from "react-icons/si";
 
 interface SidebarProps {
     isOpen: boolean;
@@ -34,6 +35,11 @@ const sideBarMenu = [
         url: '/dashboard/jobs',
         title: 'Jobs',
         icon: IoIosGitNetwork
+    },
+    {
+        url: '/dashboard/docs',
+        title: 'Docs',
+        icon: SiReadthedocs
     }
 ]
 

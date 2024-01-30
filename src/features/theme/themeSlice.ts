@@ -5,7 +5,7 @@ interface ThemeState {
 }
 const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 const initialState: ThemeState = {
-  theme: localStorage.getItem('themeMode') || (isSystemDark ? 'dark' : 'light'),
+  theme: localStorage.getItem('themeMode') || 'dark',//TODO improve colours of light theme
 } as ThemeState;
 
 export const themeSlice = createSlice({

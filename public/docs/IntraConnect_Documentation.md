@@ -1,8 +1,17 @@
 
-# Intra-Connect Documentation
+# Intra-Connect Documentation   
 
 ## Introduction
 Welcome to Intra-Connect, your comprehensive tool for managing internal tasks and processes. Designed to streamline workflows within your company, Intra-Connect offers a suite of features tailored to enhance productivity and collaboration.
+
+
+## Ticket System
+This is used for creating ticket whenever you encounter a problem.
+
+### Creating a Ticket
+1. Go to Tickets Pane in the sidebar
+1. James Monroe
+1. John Quincy Adams
 
 ## Getting Started
 ### Logging In

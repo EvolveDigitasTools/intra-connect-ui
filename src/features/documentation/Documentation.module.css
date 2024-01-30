@@ -1,0 +1,19 @@
+/* Container Style */
+.doc {
+  @apply p-4 max-h-[90vh] overflow-y-auto;
+}
+
+/* Headings Style */
+.doc h1 {
+  @apply text-3xl font-bold my-4 text-light-primary dark:text-dark-primary;
+}
+
+.doc h2 {
+  @apply text-2xl font-semibold my-3 text-light-secondry dark:text-dark-secondry;
+}
+
+.doc h3 {
+  @apply text-xl font-medium my-2 text-light-main-text dark:text-dark-main-text;
+}
+
+/* Add more custom styles as needed */
