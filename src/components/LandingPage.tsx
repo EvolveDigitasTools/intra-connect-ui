@@ -62,7 +62,7 @@ const LandingPage: React.FC = () => {
     </section>)
 
   return (
-    <div className="mx-auto sm:px-6 sm:py-16 lg:px-16">
+    <div className="mx-auto sm:px-6 sm:py-16 lg:px-16 h-[90vh]">
       <div className="relative isolate overflow-hidden bg-gray-900 px-6 pt-16 shadow-2xl sm:rounded-3xl sm:px-16 md:pt-24 lg:flex lg:gap-x-20 lg:px-24 lg:pt-0">
         <svg
           viewBox="0 0 1024 1024"
@@ -104,7 +104,7 @@ const LandingPage: React.FC = () => {
         <div className="relative mt-16 h-80 lg:mt-8">
           <img
             className="absolute left-0 top-0 w-[57rem] max-w-none rounded-md bg-white/5 ring-1 ring-white/10"
-            src="https://tailwindui.com/img/component-images/dark-project-app-screenshot.png"
+            src="/dark-project-app-screenshot.png"
             alt="App screenshot"
             width={1824}
             height={1080}
